@@ -1,0 +1,15 @@
+altair
+fastapi
+mailtrap
+openpyxl
+pandas
+psycopg2-binary
+pytest
+python-dotenv
+pyyaml
+requests
+sqlalchemy
+streamlit
+uvicorn
+reportlab
+httpx2
