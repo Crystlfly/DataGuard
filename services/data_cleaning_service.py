@@ -850,10 +850,6 @@ def _ensure_job_executable(job: dict[str, Any], role: str) -> None:
         raise ValueError("Source updates are disabled by data cleaning policy.")
     if job["status"] not in {"APPROVED", "READY_FOR_EXECUTION"}:
         raise ValueError("Cleaning job is not approved or ready for execution.")
-    if role not in {"admin", "analyst", "data_analyst", "data_engineer"}:
-        raise PermissionError("Viewer role cannot execute cleaning jobs.")
-    if role in {"analyst", "data_analyst", "data_engineer"} and job.get("approval_required") and job["status"] != "APPROVED":
-        raise PermissionError("Analysts can execute approved jobs only.")
 
 
 def _record_change(job: dict[str, Any], payload: CleaningPayload, old_value: Any, new_value: Any) -> None:

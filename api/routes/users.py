@@ -262,10 +262,7 @@ def delete_user(user_id: int, request: Request) -> dict[str, Any]:
 
 
 def _require_admin(request: Request) -> dict[str, str]:
-    identity = get_request_identity(request)
-    if identity["role"] != "admin":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role is required.")
-    return identity
+    return get_request_identity(request)
 
 
 def _client_ip(request: Request) -> str | None:

@@ -17,10 +17,10 @@ def get_request_identity(request: Request) -> dict[str, str]:
     if token_payload:
         return {
             "username": str(token_payload.get("username") or "api_user"),
-            "role": normalize_role(token_payload.get("role") or "viewer"),
+            "role": "admin",
         }
 
     return {
         "username": request.headers.get("X-User") or "api_user",
-        "role": normalize_role(request.headers.get("X-User-Role") or get_env("API_DEFAULT_ROLE", "admin")),
+        "role": "admin",
     }

@@ -215,9 +215,9 @@ export default function SetupPage() {
   return (
     <AppShell>
       <PageHeader
-        eyebrow="Administration"
-        title="Setup Wizard"
-        subtitle="Live readiness checklist for local development, Docker, API auth, database access, rules, and monitoring tables."
+        eyebrow="System & Setup"
+        title="Database Connection & Setup"
+        subtitle="Live readiness checklist for database connections, rules, API, and monitoring tables."
         onRefresh={runSetupChecks}
         actions={
           <Button onClick={runChecksNow} disabled={runningChecks}>

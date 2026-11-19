@@ -63,11 +63,7 @@ export function setStoredUserSession(token: string, user: AppUser) {
 }
 
 export function getStoredUserRole(): string {
-  if (typeof window === "undefined") {
-    return process.env.NEXT_PUBLIC_USER_ROLE ?? "admin"
-  }
-
-  return localStorage.getItem(USER_ROLE_STORAGE_KEY) ?? process.env.NEXT_PUBLIC_USER_ROLE ?? "admin"
+  return "admin"
 }
 
 export function getStoredUserName(): string {

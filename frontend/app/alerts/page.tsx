@@ -49,8 +49,7 @@ export default function AlertsPage() {
   const [assignSaving, setAssignSaving] = useState(false)
   const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(true)
-  const role = getStoredUserRole()
-  const canAssignAlerts = role === "admin"
+  const canAssignAlerts = true
 
   async function loadAlerts() {
     setLoading(true)

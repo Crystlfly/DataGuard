@@ -44,39 +44,18 @@ def _identity(request: Request) -> dict[str, str]:
 
 
 def _require(identity: dict[str, str], permission: str) -> None:
-    if not has_permission(identity["role"], permission):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Role {identity['role']} does not have permission: {permission}.",
-        )
+    """Allow all remediation operations for authenticated users."""
+    return
 
 
 def _assigned_issue_scope(identity: dict[str, str]) -> str | None:
-    """Return assignee scope for roles restricted to their own remediation queue."""
-
-    if identity["role"] == "data_analyst":
-        return identity["username"]
+    """Return assignee scope (unrestricted for simplified single-user access)."""
     return None
 
 
 def _ensure_issue_access(issue_id: int, identity: dict[str, str]) -> None:
-    """Prevent scoped users from acting on issues outside their assignment."""
-
-    assigned_to = _assigned_issue_scope(identity)
-    if not assigned_to:
-        return
-    issue = next(
-        (
-            row for row in get_cleanable_issues(assigned_to=assigned_to)
-            if int(row["id"]) == int(issue_id)
-        ),
-        None,
-    )
-    if issue is None:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This issue is not assigned to your remediation queue.",
-        )
+    """Allow full issue access for authenticated users."""
+    return
 
 
 def _friendly_error(error: Exception) -> HTTPException:
@@ -230,10 +209,7 @@ def execute_job(
 ) -> dict[str, Any]:
     """Execute an approved cleaning job."""
 
-    if identity["role"] == "admin":
-        _require(identity, "execute_cleaning_job")
-    else:
-        _require(identity, "execute_approved_cleaning_job")
+    _require(identity, "execute_cleaning_job")
     try:
         job = get_cleaning_job(job_id)
         if _assigned_issue_scope(identity):

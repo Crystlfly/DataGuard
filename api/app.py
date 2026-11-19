@@ -33,10 +33,15 @@ app = FastAPI(
     description="Enterprise API for monitoring runs, results, alerts, SLA, and lineage.",
 )
 
-frontend_url = get_env("FRONTEND_URL", default="http://localhost:3000")
+raw_frontend_url = get_env("FRONTEND_URL", default="http://localhost:3000")
+allowed_origins = [origin.strip() for origin in str(raw_frontend_url).split(",") if origin.strip()]
+for origin in ("http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001"):
+    if origin not in allowed_origins:
+        allowed_origins.append(origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[str(frontend_url)],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
     allow_headers=["*"],
@@ -166,50 +171,27 @@ def _api_identity(request: Request) -> dict[str, str]:
 
 
 def _assigned_alert_scope(identity: dict[str, str]) -> str | None:
-    """Return alert assignee scope for roles limited to assigned work."""
+    """Return alert assignee scope (unrestricted for simplified single-user access)."""
 
-    if identity["role"] == "data_analyst":
-        return identity["username"]
     return None
 
 
 def _require_alert_mutation(identity: dict[str, str]) -> None:
-    """Block read-only roles from changing alert state."""
+    """Allow alert mutation for authenticated users."""
 
-    if identity["role"] == "viewer":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Viewer role has read-only access.",
-        )
+    return
 
 
 def _require_admin(identity: dict[str, str]) -> None:
-    """Require administrator role for ownership/assignment operations."""
+    """Allow full administrative actions for authenticated users."""
 
-    if identity["role"] != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Administrator role is required for this action.",
-        )
+    return
 
 
 def _ensure_alert_access(alert_id: int, identity: dict[str, str]) -> None:
-    """Prevent scoped users from mutating alerts outside their assignment."""
+    """Allow alert management access for authenticated users."""
 
-    assigned_to = _assigned_alert_scope(identity)
-    if not assigned_to:
-        return
-    alert = fetch_one(
-        "SELECT assigned_to FROM data_quality_alerts WHERE id = :alert_id",
-        {"alert_id": alert_id},
-    )
-    if alert is None:
-        raise HTTPException(status_code=404, detail="Alert not found.")
-    if str(alert.get("assigned_to") or "") != assigned_to:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This alert is not assigned to your queue.",
-        )
+    return
 
 
 @app.get("/health", tags=["public"])

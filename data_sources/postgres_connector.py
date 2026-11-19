@@ -49,8 +49,15 @@ def _validate_data_type(data_type: str) -> str:
     return data_type
 
 
+_ENGINES: dict[tuple, Engine] = {}
+
+
 def _create_engine_from_settings(settings: DatabaseSettings, label: str) -> Engine:
-    """Create a SQLAlchemy engine from lazy database settings."""
+    """Create or reuse a SQLAlchemy engine from lazy database settings."""
+
+    key = (settings.drivername, settings.username, settings.host, settings.port, settings.database)
+    if key in _ENGINES:
+        return _ENGINES[key]
 
     logger.debug(
         "Creating %s PostgreSQL engine for host=%s database=%s driver=%s.",
@@ -69,7 +76,9 @@ def _create_engine_from_settings(settings: DatabaseSettings, label: str) -> Engi
         database=settings.database,
     )
 
-    return create_engine(database_url)
+    engine = create_engine(database_url, pool_pre_ping=True, pool_size=5, max_overflow=10)
+    _ENGINES[key] = engine
+    return engine
 
 
 def create_source_engine() -> Engine:

@@ -59,27 +59,19 @@ const groups = [
     ],
   },
   {
-    label: "Administration",
-    adminOnly: true,
+    label: "System & Setup",
     items: [
+      { href: "/admin/setup", label: "Connect Database", icon: Settings },
       { href: "/admin/notifications", label: "Notification Center", icon: Send },
-      { href: "/admin/users", label: "User Management", icon: UsersRound },
       { href: "/admin/audit-logs", label: "Audit Logs", icon: ScrollText },
-      { href: "/admin/setup", label: "Setup Wizard", icon: Settings },
-      { href: "/admin", label: "Admin Control Center", icon: ShieldCheck },
+      { href: "/admin", label: "System Health", icon: ShieldCheck },
     ],
   },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
-  const role = getStoredUserRole()
   const visibleGroups = groups
-    .map((group) => ({
-      ...group,
-      items: group.adminOnly && role !== "admin" ? [] : group.items,
-    }))
-    .filter((group) => group.items.length > 0)
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-76 border-r border-slate-800 bg-slate-950 text-slate-100 lg:flex lg:flex-col">

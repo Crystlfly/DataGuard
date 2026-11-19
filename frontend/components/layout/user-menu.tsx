@@ -18,7 +18,7 @@ export function UserMenu() {
       </div>
       <div className="hidden text-left md:block">
         <div className="text-xs font-medium text-slate-900">{username}</div>
-        <div className="text-[0.68rem] capitalize text-slate-500">{role} session</div>
+        <div className="text-[0.68rem] text-slate-500">Connected</div>
       </div>
       <Button
         size="icon-sm"
