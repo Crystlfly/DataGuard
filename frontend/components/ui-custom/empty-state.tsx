@@ -19,8 +19,8 @@ export function EmptyState({
   icon: Icon = Database,
 }: EmptyStateProps) {
   return (
-    <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center">
-      <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-[#B3FF4C]">
+    <div className="flex min-h-48 flex-col items-center justify-center rounded-md border border-dashed border-white/10 bg-white/[0.02] p-8 text-center">
+      <div className="rounded-md border border-white/10 bg-white/5 p-3 text-[#B3FF4C]">
         <Icon className="size-6" />
       </div>
       <h3 className="mt-4 text-base font-semibold text-white">{title}</h3>

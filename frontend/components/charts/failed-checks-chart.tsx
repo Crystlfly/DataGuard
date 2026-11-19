@@ -11,7 +11,7 @@ export function FailedChecksChart({ data }: { data: FailedPoint[] }) {
   if (!data.length) return <EmptyChart message="No failed checks found for this view." />
 
   return (
-    <Card className="rounded-xl border border-white/[0.08] bg-[#141414]">
+    <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
       <CardHeader>
         <CardTitle className="text-white">Failed Checks by Dataset</CardTitle>
         <CardDescription className="text-zinc-400">Datasets contributing most to quality failures.</CardDescription>

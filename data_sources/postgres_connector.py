@@ -52,6 +52,16 @@ def _validate_data_type(data_type: str) -> str:
 _ENGINES: dict[tuple, Engine] = {}
 
 
+def reset_engine_cache() -> None:
+    """Dispose and clear cached SQLAlchemy engines."""
+    for engine in list(_ENGINES.values()):
+        try:
+            engine.dispose()
+        except Exception:
+            pass
+    _ENGINES.clear()
+
+
 def _create_engine_from_settings(settings: DatabaseSettings, label: str) -> Engine:
     """Create or reuse a SQLAlchemy engine from lazy database settings."""
 

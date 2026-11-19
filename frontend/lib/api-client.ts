@@ -12,6 +12,9 @@ import type {
   CleaningPreview,
   CleaningSuggestion,
   CreateUserPayload,
+  DatabaseConnectionPayload,
+  DatabaseStatusResponse,
+  DatabaseTestResponse,
   IssueDetail,
   LineageEdge,
   LoginResponse,
@@ -214,6 +217,17 @@ export const api = {
     requestJson<AppUser>(`/api/v1/users/${userId}`, {
       method: "DELETE",
     }),
+  databaseStatus: () => requestJson<DatabaseStatusResponse>("/api/v1/database/status"),
+  testDatabaseConnection: (payload: DatabaseConnectionPayload) =>
+    requestJson<DatabaseTestResponse>("/api/v1/database/test", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  connectDatabase: (payload: DatabaseConnectionPayload) =>
+    requestJson<DatabaseTestResponse>("/api/v1/database/connect", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
 }
 
 export const getLatestRun = api.latestRun
@@ -227,3 +241,6 @@ export const getProfiling = api.profiling
 export const getRules = api.rules
 export const getAuditLogs = api.auditLogs
 export const runChecks = api.runChecks
+export const getDatabaseStatus = api.databaseStatus
+export const testDatabaseConnection = api.testDatabaseConnection
+export const connectDatabase = api.connectDatabase

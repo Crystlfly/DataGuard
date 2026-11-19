@@ -27,7 +27,7 @@ export function EnterpriseMetricCard({
   tone = "blue",
 }: EnterpriseMetricCardProps) {
   return (
-    <Card className="rounded-xl border border-white/[0.08] bg-[#141414] text-white">
+    <Card className="rounded-md border border-white/[0.08] bg-[#141414] text-white">
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
@@ -36,7 +36,7 @@ export function EnterpriseMetricCard({
             {description ? <p className="mt-1 text-sm text-zinc-500">{description}</p> : null}
           </div>
           {Icon ? (
-            <div className={cn("rounded-xl p-2.5", toneClasses[tone])}>
+            <div className={cn("rounded-md p-2.5", toneClasses[tone])}>
               <Icon className="size-5" />
             </div>
           ) : null}

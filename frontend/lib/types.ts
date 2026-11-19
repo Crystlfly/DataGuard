@@ -296,3 +296,48 @@ export type ProfileUpdatePayload = {
   department?: string
   phone_number?: string
 }
+
+export type TableSummary = {
+  name: string
+  row_count?: number | null
+  columns_count?: number | null
+  is_internal?: boolean
+}
+
+export type DatabaseConnectionPayload = {
+  source_type: string
+  connection_mode: "params" | "uri"
+  connection_uri?: string
+  host?: string
+  port?: number
+  database?: string
+  username?: string
+  password?: string
+  ssl_mode?: string
+}
+
+export type DatabaseTestResponse = {
+  success: boolean
+  latency_ms?: number | null
+  database_version?: string | null
+  tables_count: number
+  tables: TableSummary[]
+  message: string
+  error?: string | null
+}
+
+export type DatabaseStatusResponse = {
+  connected: boolean
+  source_type: string
+  host: string
+  port: number
+  database: string
+  username: string
+  latency_ms?: number | null
+  tables_count: number
+  tables: TableSummary[]
+  last_verified?: string | null
+  database_version?: string | null
+  is_separate_source: boolean
+  message?: string | null
+}

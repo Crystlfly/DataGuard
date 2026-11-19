@@ -7,6 +7,7 @@ import {
   BarChart3,
   BellRing,
   Columns3,
+  Database,
   FileWarning,
   GitBranch,
   LayoutDashboard,
@@ -26,6 +27,12 @@ import { cn } from "@/lib/utils"
 import { getStoredUserRole } from "@/lib/api-client"
 
 const groups = [
+  {
+    label: "Data Sources",
+    items: [
+      { href: "/admin/setup", label: "Connect Database", icon: Database },
+    ],
+  },
   {
     label: "Command Center",
     items: [
@@ -61,7 +68,6 @@ const groups = [
   {
     label: "System & Setup",
     items: [
-      { href: "/admin/setup", label: "Connect Database", icon: Settings },
       { href: "/admin/notifications", label: "Notification Center", icon: Send },
       { href: "/admin/audit-logs", label: "Audit Logs", icon: ScrollText },
       { href: "/admin", label: "System Health", icon: ShieldCheck },
@@ -76,7 +82,7 @@ export function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-76 border-r border-white/[0.08] bg-[#080808] text-zinc-100 lg:flex lg:flex-col">
       <Link href="/" className="flex h-16 items-center gap-3 border-b border-white/[0.08] px-5 hover:opacity-90 transition">
-        <div className="flex size-9 items-center justify-center rounded-xl bg-black/60 border border-white/15">
+        <div className="flex size-9 items-center justify-center rounded-md bg-black/60 border border-white/15">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-white">
             <circle cx="12" cy="12" r="3" stroke="#B3FF4C" strokeWidth="2" />
             <circle cx="12" cy="6" r="3" stroke="currentColor" strokeWidth="1.75" />
@@ -105,7 +111,7 @@ export function Sidebar() {
                     key={`${group.label}-${item.label}`}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition",
                       active
                         ? "bg-[#B3FF4C]/10 text-[#B3FF4C] font-semibold border border-[#B3FF4C]/20"
                         : "text-zinc-400 hover:bg-white/[0.04] hover:text-white"
@@ -121,7 +127,7 @@ export function Sidebar() {
         ))}
       </nav>
       <div className="border-t border-white/[0.08] p-4">
-        <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3 text-xs text-zinc-400">
+        <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-3 text-xs text-zinc-400">
           API-protected SaaS console for data quality operations, governance, and incident triage.
         </div>
       </div>

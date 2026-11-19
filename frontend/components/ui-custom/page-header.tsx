@@ -12,7 +12,7 @@ type PageHeaderProps = {
 
 export function PageHeader({ title, subtitle, eyebrow, actions, onRefresh }: PageHeaderProps) {
   return (
-    <div className="flex flex-col justify-between gap-4 rounded-xl border border-white/[0.08] bg-[#141414] p-5 lg:flex-row lg:items-center">
+    <div className="flex flex-col justify-between gap-4 rounded-md border border-white/[0.08] bg-[#141414] p-5 lg:flex-row lg:items-center">
       <div>
         {eyebrow ? <div className="text-xs font-bold uppercase tracking-wider text-[#B3FF4C]">{eyebrow}</div> : null}
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white">{title}</h1>

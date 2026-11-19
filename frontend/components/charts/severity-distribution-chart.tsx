@@ -21,7 +21,7 @@ export function SeverityDistributionChart({
   if (!data.length) return <EmptyChart message="No severity data available." />
 
   return (
-    <Card className="rounded-xl border border-white/[0.08] bg-[#141414]">
+    <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
       <CardHeader>
         <CardTitle className="text-white">{title}</CardTitle>
         <CardDescription className="text-zinc-400">{description}</CardDescription>

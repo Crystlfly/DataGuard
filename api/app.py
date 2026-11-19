@@ -14,6 +14,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from api.identity import get_request_identity
 from api.security import require_api_token
+from api.routes.database import router as database_router
 from api.routes.remediation import router as remediation_router
 from api.routes.users import router as users_router
 from config.settings import PROJECT_ROOT, get_env
@@ -749,5 +750,6 @@ def run_checks_now(request: Request) -> dict[str, Any]:
 
 app.include_router(remediation_router)
 app.include_router(users_router)
+app.include_router(database_router)
 app.include_router(api_v1)
 app.include_router(legacy)

@@ -12,8 +12,8 @@ export function UserMenu() {
   const role = getStoredUserRole()
 
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#141414] px-2 py-1.5">
-      <div className="flex size-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[#B3FF4C]">
+    <div className="flex items-center gap-2 rounded-md border border-white/10 bg-[#141414] px-2 py-1.5">
+      <div className="flex size-8 items-center justify-center rounded-sm border border-white/10 bg-white/5 text-[#B3FF4C]">
         <UserRound className="size-4" />
       </div>
       <div className="hidden text-left md:block">
