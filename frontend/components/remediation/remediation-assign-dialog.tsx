@@ -51,7 +51,7 @@ export function RemediationAssignDialog({
       <DialogContent className="max-w-2xl p-0 sm:max-w-2xl">
         <DialogHeader className="border-b p-5">
           <div className="flex items-start gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[#B3FF4C]/10 border border-[#B3FF4C]/20 text-[#B3FF4C]">
               <UserCheck className="size-5" />
             </div>
             <div>
@@ -65,11 +65,11 @@ export function RemediationAssignDialog({
 
         <div className="grid gap-5 p-5">
           {issue ? (
-            <div className="rounded-xl border bg-slate-50 p-4">
+            <div className="rounded-xl border bg-white/[0.03] p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <div className="text-sm font-semibold text-slate-950">Issue #{issue.id}</div>
-                  <div className="mt-1 text-xs uppercase tracking-wide text-slate-500">
+                  <div className="text-sm font-semibold text-white">Issue #{issue.id}</div>
+                  <div className="mt-1 text-xs uppercase tracking-wide text-zinc-400">
                     {issue.dataset_name}.{issue.column_name}
                   </div>
                 </div>
@@ -78,8 +78,8 @@ export function RemediationAssignDialog({
                   <IssueStatusBadge status={issue.issue_status} />
                 </div>
               </div>
-              <p className="mt-3 text-sm leading-6 text-slate-600">{issue.reason}</p>
-              <div className="mt-3 grid gap-2 text-xs text-slate-500 sm:grid-cols-3">
+              <p className="mt-3 text-sm leading-6 text-zinc-300">{issue.reason}</p>
+              <div className="mt-3 grid gap-2 text-xs text-zinc-400 sm:grid-cols-3">
                 <div>Check: {issue.check_type || "N/A"}</div>
                 <div>Row: {issue.row_identifier || "N/A"}</div>
                 <div>Current assignee: {issue.assigned_to || "None"}</div>
@@ -91,7 +91,7 @@ export function RemediationAssignDialog({
             <Label htmlFor="remediation-assignee">Assignee</Label>
             <select
               id="remediation-assignee"
-              className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-blue-400 focus:ring-3 focus:ring-blue-100"
+              className="h-10 rounded-lg border border-white/[0.08] bg-white px-3 text-sm shadow-sm outline-none transition focus:border-[#B3FF4C] focus:ring-2 focus:ring-[#B3FF4C]/30"
               disabled={loading || saving || !activeUsers.length}
               value={selectedUsername}
               onChange={(event) => onSelectedUsernameChange(event.target.value)}
@@ -112,9 +112,9 @@ export function RemediationAssignDialog({
           </div>
 
           {selectedUser ? (
-            <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-              <div className="text-sm font-semibold text-blue-950">{selectedUser.full_name || selectedUser.username}</div>
-              <div className="mt-1 text-sm text-blue-700">{selectedUser.email || "No email recorded"}</div>
+            <div className="rounded-xl border border-[#B3FF4C]/30 bg-[#B3FF4C]/10 p-4">
+              <div className="text-sm font-semibold text-white">{selectedUser.full_name || selectedUser.username}</div>
+              <div className="mt-1 text-sm text-[#B3FF4C]">{selectedUser.email || "No email recorded"}</div>
               <div className="mt-3 flex flex-wrap gap-2">
                 <StatusBadge status={selectedUser.role} />
                 <StatusBadge status={selectedUser.department || "No department"} />
@@ -155,7 +155,7 @@ function SummaryTile({
   const Icon = icon
   return (
     <div className="rounded-xl border bg-white p-3">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
         <Icon className="size-4" /> {label}
       </div>
       <div className="mt-2 text-xl font-semibold">{value}</div>

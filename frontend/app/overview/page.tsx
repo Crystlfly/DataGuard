@@ -26,18 +26,18 @@ export default function OverviewPage() {
         {actions.map((action) => {
           const Icon = action.icon
           return (
-            <Card className="rounded-xl shadow-sm" key={action.href}>
+            <Card className="rounded-xl border border-white/[0.08] bg-[#141414] shadow-sm" key={action.href}>
               <CardHeader>
-                <div className="mb-3 flex size-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                <div className="mb-3 flex size-10 items-center justify-center rounded-xl bg-[#B3FF4C]/10 border border-[#B3FF4C]/20 text-[#B3FF4C]">
                   <Icon className="size-5" />
                 </div>
-                <CardTitle>{action.title}</CardTitle>
-                <CardDescription>{action.description}</CardDescription>
+                <CardTitle className="text-white">{action.title}</CardTitle>
+                <CardDescription className="text-zinc-400">{action.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Link
                   href={action.href}
-                  className="inline-flex h-8 items-center justify-center rounded-lg border px-3 text-sm font-medium transition hover:bg-slate-50"
+                  className="inline-flex h-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] px-3 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.08] hover:text-white"
                 >
                   Open
                 </Link>

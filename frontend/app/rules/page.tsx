@@ -62,7 +62,7 @@ export default function RulesPage() {
         accessorKey: "rule_config",
         header: "Rule Config",
         cell: ({ row }) => (
-          <code className="block max-w-xl whitespace-normal rounded-lg bg-slate-100 px-2 py-1 text-xs">
+          <code className="block max-w-xl whitespace-normal rounded-lg bg-white/[0.05] px-2 py-1 text-xs">
             {row.original.rule_config}
           </code>
         ),
@@ -80,7 +80,7 @@ export default function RulesPage() {
         onRefresh={loadRules}
       />
 
-      {message ? <Card className="rounded-xl border-blue-100 bg-blue-50"><CardContent className="p-4 text-sm text-blue-700">{message}</CardContent></Card> : null}
+      {message ? <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent></Card> : null}
 
       <div className="grid gap-4 md:grid-cols-4">
         <EnterpriseMetricCard title="Total Rules" value={rows.length} description="Flattened YAML rules" icon={SlidersHorizontal} tone="blue" />

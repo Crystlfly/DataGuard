@@ -185,7 +185,7 @@ export function CleaningJobWizard({ issue, suggestions, onJobCreated }: Cleaning
       <CardContent className="space-y-5">
         <section>
           <div className="text-sm font-semibold">Step 1: Selected issue</div>
-          <div className="mt-2 rounded-xl border bg-slate-50 p-3 text-sm">
+          <div className="mt-2 rounded-xl border bg-white/[0.03] p-3 text-sm">
             #{issue.id} {issue.dataset_name}.{issue.column_name} - {issue.reason}
           </div>
         </section>
@@ -229,10 +229,10 @@ export function CleaningJobWizard({ issue, suggestions, onJobCreated }: Cleaning
             </>
           ) : null}
         </section>
-        <section className="flex items-center justify-between rounded-xl border bg-slate-50 p-3">
+        <section className="flex items-center justify-between rounded-xl border bg-white/[0.03] p-3">
           <div>
             <div className="text-sm font-semibold">Step 4: Preview changes</div>
-            <p className="text-sm text-slate-500">Always dry-run before creating a job.</p>
+            <p className="text-sm text-zinc-400">Always dry-run before creating a job.</p>
           </div>
           {selected ? <RiskBadge risk={selected.risk} /> : null}
         </section>
@@ -241,10 +241,10 @@ export function CleaningJobWizard({ issue, suggestions, onJobCreated }: Cleaning
           <Button onClick={requestCreateJob} disabled={!preview}>Create Job</Button>
           <Button variant="outline" onClick={requestExecuteNow} disabled={!canExecute || !preview}>Execute Now</Button>
         </div>
-        {message ? <div className="rounded-xl border bg-blue-50 p-3 text-sm text-blue-700">{message}</div> : null}
+        {message ? <div className="rounded-xl border bg-[#B3FF4C]/10 p-3 text-sm text-[#B3FF4C]">{message}</div> : null}
         {preview ? (
           <div className="space-y-3">
-            <div className="text-sm text-slate-600">{preview.summary}</div>
+            <div className="text-sm text-zinc-300">{preview.summary}</div>
             <CleaningPreviewTable rows={preview.preview_rows} />
           </div>
         ) : null}

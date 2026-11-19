@@ -315,7 +315,7 @@ export default function UserManagementPage() {
 function RequestedChanges({ update }: { update: ProfileUpdateRequest }) {
   const changes = Object.entries(update.requested_changes ?? {})
   if (!changes.length) {
-    return <span className="text-sm text-slate-500">No changes</span>
+    return <span className="text-sm text-zinc-400">No changes</span>
   }
 
   return (
@@ -323,14 +323,14 @@ function RequestedChanges({ update }: { update: ProfileUpdateRequest }) {
       {changes.map(([field, nextValue]) => {
         const currentValue = currentProfileValue(update, field)
         return (
-          <div key={field} className="rounded-lg border bg-slate-50 p-2 text-xs">
-            <div className="font-semibold uppercase tracking-wide text-slate-500">{field.replaceAll("_", " ")}</div>
+          <div key={field} className="rounded-lg border bg-white/[0.03] p-2 text-xs">
+            <div className="font-semibold uppercase tracking-wide text-zinc-400">{field.replaceAll("_", " ")}</div>
             <div className="mt-1 grid gap-1 md:grid-cols-[1fr_auto_1fr]">
               <span className="truncate rounded-md bg-white px-2 py-1" title={String(currentValue ?? "")}>
                 {String(currentValue || "Blank")}
               </span>
               <span className="self-center text-slate-400">to</span>
-              <span className="truncate rounded-md bg-white px-2 py-1 font-medium text-slate-900" title={String(nextValue ?? "")}>
+              <span className="truncate rounded-md bg-white px-2 py-1 font-medium text-white" title={String(nextValue ?? "")}>
                 {String(nextValue || "Blank")}
               </span>
             </div>

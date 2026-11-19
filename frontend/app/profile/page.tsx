@@ -102,7 +102,7 @@ export default function ProfilePage() {
         <Card className="rounded-xl shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-[#B3FF4C]/10 border border-[#B3FF4C]/20 text-[#B3FF4C]">
                 <UserRound className="size-6" />
               </div>
               <div>
@@ -115,25 +115,25 @@ export default function ProfilePage() {
             <div>
               <div className="mb-2 flex items-center justify-between text-sm">
                 <span className="font-medium">Profile completion</span>
-                <span className="text-slate-500">{completion}%</span>
+                <span className="text-zinc-400">{completion}%</span>
               </div>
               <Progress value={completion} />
             </div>
             <div className="grid gap-2 text-sm">
               <div className="flex justify-between gap-4">
-                <span className="text-slate-500">Username</span>
+                <span className="text-zinc-400">Username</span>
                 <span className="font-medium">{profile?.username}</span>
               </div>
               <div className="flex justify-between gap-4">
-                <span className="text-slate-500">Role</span>
+                <span className="text-zinc-400">Role</span>
                 <StatusBadge status={profile?.role} />
               </div>
               <div className="flex justify-between gap-4">
-                <span className="text-slate-500">Department</span>
+                <span className="text-zinc-400">Department</span>
                 <span className="font-medium">{profile?.department || "Missing"}</span>
               </div>
               <div className="flex justify-between gap-4">
-                <span className="text-slate-500">Job title</span>
+                <span className="text-zinc-400">Job title</span>
                 <span className="font-medium">{profile?.job_title || "Missing"}</span>
               </div>
             </div>
@@ -169,7 +169,7 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-3">
           {!pendingUpdates.length ? (
-            <div className="rounded-xl border bg-slate-50 p-4 text-sm text-slate-500">No pending profile updates.</div>
+            <div className="rounded-xl border bg-white/[0.03] p-4 text-sm text-zinc-400">No pending profile updates.</div>
           ) : (
             pendingUpdates.map((update) => (
               <div key={update.id} className="rounded-xl border p-4">
@@ -182,13 +182,13 @@ export default function ProfilePage() {
                 </div>
                 <div className="mt-3 grid gap-2 text-sm md:grid-cols-2">
                   {Object.entries(update.requested_changes ?? {}).map(([field, value]) => (
-                    <div key={field} className="rounded-lg bg-slate-50 p-3">
-                      <div className="text-xs uppercase tracking-wide text-slate-500">{field.replaceAll("_", " ")}</div>
+                    <div key={field} className="rounded-lg bg-white/[0.03] p-3">
+                      <div className="text-xs uppercase tracking-wide text-zinc-400">{field.replaceAll("_", " ")}</div>
                       <div className="mt-1 font-medium">{value || "Blank"}</div>
                     </div>
                   ))}
                 </div>
-                <div className="mt-3 text-xs text-slate-500">Submitted {formatDateTime(update.submitted_at)}</div>
+                <div className="mt-3 text-xs text-zinc-400">Submitted {formatDateTime(update.submitted_at)}</div>
               </div>
             ))
           )}

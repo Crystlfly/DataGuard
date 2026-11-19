@@ -49,7 +49,7 @@ export function AlertAssignDialog({
       <DialogContent className="max-w-2xl p-0 sm:max-w-2xl">
         <DialogHeader className="border-b p-5">
           <div className="flex items-start gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[#B3FF4C]/10 border border-[#B3FF4C]/20 text-[#B3FF4C]">
               <UserCheck className="size-5" />
             </div>
             <div>
@@ -63,11 +63,11 @@ export function AlertAssignDialog({
 
         <div className="grid gap-5 p-5">
           {alert ? (
-            <div className="rounded-xl border bg-slate-50 p-4">
+            <div className="rounded-xl border bg-white/[0.03] p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <div className="text-sm font-semibold text-slate-950">Alert #{alert.id}</div>
-                  <div className="mt-1 text-xs uppercase tracking-wide text-slate-500">
+                  <div className="text-sm font-semibold text-white">Alert #{alert.id}</div>
+                  <div className="mt-1 text-xs uppercase tracking-wide text-zinc-400">
                     {alert.alert_type ?? "Data quality alert"}
                   </div>
                 </div>
@@ -76,8 +76,8 @@ export function AlertAssignDialog({
                   <StatusBadge status={alert.is_resolved ? "RESOLVED" : alert.escalation_status || "OPEN"} />
                 </div>
               </div>
-              <p className="mt-3 text-sm leading-6 text-slate-600">{alert.message}</p>
-              <div className="mt-3 grid gap-2 text-xs text-slate-500 sm:grid-cols-3">
+              <p className="mt-3 text-sm leading-6 text-zinc-300">{alert.message}</p>
+              <div className="mt-3 grid gap-2 text-xs text-zinc-400 sm:grid-cols-3">
                 <div>Owner team: {alert.owner_team || "Unassigned"}</div>
                 <div>Current assignee: {alert.assigned_to || "None"}</div>
                 <div>Run: {alert.run_id ?? "N/A"}</div>
@@ -89,7 +89,7 @@ export function AlertAssignDialog({
             <Label htmlFor="alert-assignee">Assignee</Label>
             <select
               id="alert-assignee"
-              className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-blue-400 focus:ring-3 focus:ring-blue-100"
+              className="h-10 rounded-lg border border-white/[0.08] bg-white px-3 text-sm shadow-sm outline-none transition focus:border-[#B3FF4C] focus:ring-2 focus:ring-[#B3FF4C]/30"
               disabled={loading || saving || !activeUsers.length}
               value={selectedUsername}
               onChange={(event) => onSelectedUsernameChange(event.target.value)}
@@ -105,19 +105,19 @@ export function AlertAssignDialog({
 
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-xl border bg-white p-3">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
                 <UsersRound className="size-4" /> Active Users
               </div>
               <div className="mt-2 text-2xl font-semibold">{activeUsers.length}</div>
             </div>
             <div className="rounded-xl border bg-white p-3">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
                 <UserCheck className="size-4" /> Analysts
               </div>
               <div className="mt-2 text-2xl font-semibold">{analystCount}</div>
             </div>
             <div className="rounded-xl border bg-white p-3">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
                 <BellRing className="size-4" /> Severity
               </div>
               <div className="mt-2">
@@ -127,9 +127,9 @@ export function AlertAssignDialog({
           </div>
 
           {selectedUser ? (
-            <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-              <div className="text-sm font-semibold text-blue-950">{selectedUser.full_name || selectedUser.username}</div>
-              <div className="mt-1 text-sm text-blue-700">{selectedUser.email || "No email recorded"}</div>
+            <div className="rounded-xl border border-[#B3FF4C]/30 bg-[#B3FF4C]/10 p-4">
+              <div className="text-sm font-semibold text-white">{selectedUser.full_name || selectedUser.username}</div>
+              <div className="mt-1 text-sm text-[#B3FF4C]">{selectedUser.email || "No email recorded"}</div>
               <div className="mt-3 flex flex-wrap gap-2">
                 <StatusBadge status={selectedUser.role} />
                 <StatusBadge status={selectedUser.is_active === false ? "Inactive" : "Active"} />

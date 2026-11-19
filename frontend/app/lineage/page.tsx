@@ -70,7 +70,7 @@ export default function LineagePage() {
         onRefresh={loadData}
       />
 
-      {message ? <Card className="rounded-xl border-blue-100 bg-blue-50"><CardContent className="p-4 text-sm text-blue-700">{message}</CardContent></Card> : null}
+      {message ? <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent></Card> : null}
 
       <div className="grid gap-4 md:grid-cols-3">
         <EnterpriseMetricCard title="Lineage Edges" value={rows.length} description="Persisted relationships" icon={GitBranch} tone="blue" />
@@ -99,16 +99,16 @@ export default function LineagePage() {
           <div className="grid gap-4">
             {filteredRows.slice(0, 8).map((edge, index) => (
               <div className="grid items-center gap-3 rounded-xl border bg-white p-4 shadow-sm md:grid-cols-[1fr_auto_1fr]" key={`${edge.source_table}-${edge.target_table}-${index}`}>
-                <div className="rounded-xl bg-slate-50 p-4">
-                  <div className="text-xs uppercase tracking-wide text-slate-500">Source</div>
+                <div className="rounded-xl bg-white/[0.03] p-4">
+                  <div className="text-xs uppercase tracking-wide text-zinc-400">Source</div>
                   <div className="mt-1 font-semibold">{edge.source_table}</div>
-                  <div className="text-sm text-slate-500">{edge.source_column}</div>
+                  <div className="text-sm text-zinc-400">{edge.source_column}</div>
                 </div>
-                <ArrowRight className="mx-auto size-5 text-blue-600" />
-                <div className="rounded-xl bg-blue-50 p-4">
-                  <div className="text-xs uppercase tracking-wide text-blue-600">Target</div>
+                <ArrowRight className="mx-auto size-5 text-[#B3FF4C]" />
+                <div className="rounded-xl bg-[#B3FF4C]/10 p-4">
+                  <div className="text-xs uppercase tracking-wide text-[#B3FF4C]">Target</div>
                   <div className="mt-1 font-semibold">{edge.target_table}</div>
-                  <div className="text-sm text-slate-500">{edge.target_column}</div>
+                  <div className="text-sm text-zinc-400">{edge.target_column}</div>
                 </div>
               </div>
             ))}
@@ -125,9 +125,9 @@ export default function LineagePage() {
             </CardHeader>
             <CardContent className="space-y-3">
               {failedLineageChecks.slice(0, 12).map((row) => (
-                <div className="rounded-xl border bg-slate-50 p-4" key={row.id}>
+                <div className="rounded-xl border bg-white/[0.03] p-4" key={row.id}>
                   <div className="font-medium">{row.dataset_name}</div>
-                  <p className="text-sm text-slate-500">{row.check_type} on {row.column_name ?? row.column ?? "table"}</p>
+                  <p className="text-sm text-zinc-400">{row.check_type} on {row.column_name ?? row.column ?? "table"}</p>
                 </div>
               ))}
             </CardContent>

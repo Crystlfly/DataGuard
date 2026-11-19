@@ -88,7 +88,7 @@ export default function QualityExplorerPage() {
         onRefresh={loadData}
       />
 
-      {message ? <Card className="rounded-xl border-blue-100 bg-blue-50"><CardContent className="p-4 text-sm text-blue-700">{message}</CardContent></Card> : null}
+      {message ? <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent></Card> : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <EnterpriseMetricCard title="Datasets" value={datasets.length} description="Monitored datasets" icon={Database} tone="blue" />
@@ -138,7 +138,7 @@ export default function QualityExplorerPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-semibold">{formatPercent(row.score)}</div>
-                <p className="mt-1 text-sm text-slate-500">{row.failed} failed checks</p>
+                <p className="mt-1 text-sm text-zinc-400">{row.failed} failed checks</p>
               </CardContent>
             </Card>
           ))}
@@ -157,9 +157,9 @@ export default function QualityExplorerPage() {
             </CardHeader>
             <CardContent className="grid gap-3 md:grid-cols-3">
               {selectedProfiles.slice(0, 9).map((profile) => (
-                <div className="rounded-xl border bg-slate-50 p-4" key={`${profile.dataset_name}-${profile.column_name}`}>
+                <div className="rounded-xl border bg-white/[0.03] p-4" key={`${profile.dataset_name}-${profile.column_name}`}>
                   <div className="font-medium">{profile.column_name}</div>
-                  <p className="text-sm text-slate-500">{profile.data_type}</p>
+                  <p className="text-sm text-zinc-400">{profile.data_type}</p>
                   <div className="mt-3 text-sm">Null rate: {formatPercent(profile.null_rate)}</div>
                   <div className="text-sm">Unique: {formatNumber(profile.unique_count)}</div>
                 </div>

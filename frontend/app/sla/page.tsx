@@ -100,7 +100,7 @@ export default function SlaPage() {
         onRefresh={loadData}
       />
 
-      {message ? <Card className="rounded-xl border-blue-100 bg-blue-50"><CardContent className="p-4 text-sm text-blue-700">{message}</CardContent></Card> : null}
+      {message ? <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent></Card> : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <EnterpriseMetricCard title="SLA Compliance" value={formatPercent(compliance)} description="Datasets passing SLA" icon={ShieldCheck} tone="green" />
@@ -130,11 +130,11 @@ export default function SlaPage() {
               ))}
             </select>
             {selected ? (
-              <div className="space-y-3 rounded-xl border bg-slate-50 p-4 text-sm">
+              <div className="space-y-3 rounded-xl border bg-white/[0.03] p-4 text-sm">
                 <div className="flex items-center justify-between"><span>Status</span><StatusBadge status={selected.sla_status} /></div>
                 <div className="flex items-center justify-between"><span>Actual score</span><strong>{formatPercent(selected.actual_quality_score)}</strong></div>
                 <div className="flex items-center justify-between"><span>Failed checks</span><strong>{formatNumber(selected.actual_failed_checks)}</strong></div>
-                <p className="text-slate-500">{selected.reason || "No SLA reason recorded."}</p>
+                <p className="text-zinc-400">{selected.reason || "No SLA reason recorded."}</p>
               </div>
             ) : null}
           </CardContent>

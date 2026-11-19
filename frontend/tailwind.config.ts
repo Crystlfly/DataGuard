@@ -10,11 +10,11 @@ const config: Config = {
       },
       colors: {
         enterprise: {
-          blue: "#2563eb",
-          green: "#16a34a",
-          amber: "#d97706",
-          red: "#dc2626",
-          slate: "#475569",
+          brand: "#B3FF4C",
+          green: "#22c55e",
+          amber: "#eab308",
+          red: "#f43f5e",
+          dark: "#141414",
         },
       },
       boxShadow: {

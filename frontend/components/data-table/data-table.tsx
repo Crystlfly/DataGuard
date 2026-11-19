@@ -102,9 +102,9 @@ export function EnterpriseDataTable<TData, TValue>({
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="bg-slate-50">
+                <TableRow key={headerGroup.id} className="bg-white/[0.02] border-b border-white/[0.08] hover:bg-white/[0.02]">
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <TableHead key={header.id} className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -115,9 +115,9 @@ export function EnterpriseDataTable<TData, TValue>({
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className="border-b border-white/[0.06] hover:bg-white/[0.03]">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="max-w-md text-slate-700">
+                    <TableCell key={cell.id} className="max-w-md text-zinc-300">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

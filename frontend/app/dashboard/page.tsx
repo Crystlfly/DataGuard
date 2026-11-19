@@ -105,12 +105,19 @@ export default function DashboardPage() {
         title="Executive Dashboard"
         subtitle="Management-ready view of quality score, SLA posture, open alerts, and datasets requiring action."
         onRefresh={loadDashboard}
-        actions={<Button onClick={runChecks}>Run Checks Now</Button>}
+        actions={
+          <Button
+            onClick={runChecks}
+            className="bg-[#B3FF4C] text-black font-semibold hover:bg-[#a3f03b] transition"
+          >
+            Run Checks Now
+          </Button>
+        }
       />
 
       {message ? (
-        <Card className="rounded-xl border-blue-100 bg-blue-50 shadow-sm">
-          <CardContent className="p-4 text-sm text-blue-700">{message}</CardContent>
+        <Card className="rounded-xl border border-[#B3FF4C]/30 bg-[#B3FF4C]/10 text-[#B3FF4C]">
+          <CardContent className="p-4 text-sm font-medium">{message}</CardContent>
         </Card>
       ) : null}
 
@@ -141,26 +148,26 @@ export default function DashboardPage() {
         />
       </div>
 
-      <Card className="rounded-xl shadow-sm">
+      <Card className="rounded-xl border border-white/[0.08] bg-[#141414]">
         <CardHeader>
-          <CardTitle>Executive Summary</CardTitle>
-          <CardDescription>Last refreshed {lastRefreshed || "not yet"}</CardDescription>
+          <CardTitle className="text-white">Executive Summary</CardTitle>
+          <CardDescription className="text-zinc-400">Last refreshed {lastRefreshed || "not yet"}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-xl border bg-slate-50 p-4">
-            <div className="text-sm font-medium text-slate-500">Latest Run</div>
-            <div className="mt-2 text-xl font-semibold">#{latestRun?.run_id ?? "-"}</div>
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+            <div className="text-sm font-medium text-zinc-400">Latest Run</div>
+            <div className="mt-2 text-xl font-bold text-white">#{latestRun?.run_id ?? "-"}</div>
             <div className="mt-2"><StatusBadge status={latestRun?.overall_status} /></div>
           </div>
-          <div className="rounded-xl border bg-slate-50 p-4">
-            <div className="text-sm font-medium text-slate-500">Check Volume</div>
-            <div className="mt-2 text-xl font-semibold">{formatNumber(latestRun?.total_checks ?? 0)}</div>
-            <p className="mt-1 text-sm text-slate-500">{formatNumber(latestRun?.failed_checks ?? 0)} failed checks</p>
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+            <div className="text-sm font-medium text-zinc-400">Check Volume</div>
+            <div className="mt-2 text-xl font-bold text-white">{formatNumber(latestRun?.total_checks ?? 0)}</div>
+            <p className="mt-1 text-sm text-zinc-400">{formatNumber(latestRun?.failed_checks ?? 0)} failed checks</p>
           </div>
-          <div className="rounded-xl border bg-slate-50 p-4">
-            <div className="text-sm font-medium text-slate-500">Operational Posture</div>
-            <div className="mt-2 text-xl font-semibold">{alerts.length ? "Action Required" : "Stable"}</div>
-            <p className="mt-1 text-sm text-slate-500">{alerts.length} open alerts in queue</p>
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+            <div className="text-sm font-medium text-zinc-400">Operational Posture</div>
+            <div className="mt-2 text-xl font-bold text-white">{alerts.length ? "Action Required" : "Stable"}</div>
+            <p className="mt-1 text-sm text-zinc-400">{alerts.length} open alerts in queue</p>
           </div>
         </CardContent>
       </Card>
@@ -173,53 +180,53 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-3">
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl border border-white/[0.08] bg-[#141414]">
           <CardHeader>
-            <CardTitle>Recently Degraded Datasets</CardTitle>
-            <CardDescription>Datasets with failed checks in the latest run.</CardDescription>
+            <CardTitle className="text-white">Recently Degraded Datasets</CardTitle>
+            <CardDescription className="text-zinc-400">Datasets with failed checks in the latest run.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {degradedDatasets.length ? degradedDatasets.map((row) => (
-              <div className="flex items-center justify-between rounded-xl border p-3" key={row.dataset}>
-                <span className="font-medium">{row.dataset}</span>
-                <span className="text-sm text-red-600">{row.failed} failures</span>
+              <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 hover:bg-white/[0.04] transition" key={row.dataset}>
+                <span className="font-medium text-white">{row.dataset}</span>
+                <span className="text-sm font-semibold text-rose-400">{row.failed} failures</span>
               </div>
             )) : <EmptyState title="No degraded datasets" description="The latest run has no dataset-level failures." />}
           </CardContent>
         </Card>
 
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl border border-white/[0.08] bg-[#141414]">
           <CardHeader>
-            <CardTitle>Critical Issues Requiring Action</CardTitle>
-            <CardDescription>Highest severity quality failures.</CardDescription>
+            <CardTitle className="text-white">Critical Issues Requiring Action</CardTitle>
+            <CardDescription className="text-zinc-400">Highest severity quality failures.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {criticalResults.slice(0, 5).map((row, index) => (
-              <div className="rounded-xl border p-3" key={`${row.id}-${index}`}>
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 hover:bg-white/[0.04] transition" key={`${row.id}-${index}`}>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="font-medium">{row.dataset_name}</span>
+                  <span className="font-medium text-white">{row.dataset_name}</span>
                   <SeverityBadge severity={row.severity} />
                 </div>
-                <p className="mt-1 text-sm text-slate-500">{row.check_type} on {row.column_name ?? row.column ?? "table"}</p>
+                <p className="mt-1 text-sm text-zinc-400">{row.check_type} on {row.column_name ?? row.column ?? "table"}</p>
               </div>
             ))}
             {!criticalResults.length ? <EmptyState title="No critical issues" description="Critical severity failures will appear here." /> : null}
           </CardContent>
         </Card>
 
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl border border-white/[0.08] bg-[#141414]">
           <CardHeader>
-            <CardTitle>Latest Open Alerts</CardTitle>
-            <CardDescription>Operational follow-up queue.</CardDescription>
+            <CardTitle className="text-white">Latest Open Alerts</CardTitle>
+            <CardDescription className="text-zinc-400">Operational follow-up queue.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {alerts.slice(0, 5).map((alert) => (
-              <div className="rounded-xl border p-3" key={alert.id}>
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 hover:bg-white/[0.04] transition" key={alert.id}>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="font-medium">Alert #{alert.id}</span>
+                  <span className="font-medium text-white">Alert #{alert.id}</span>
                   <SeverityBadge severity={alert.severity} />
                 </div>
-                <p className="mt-1 line-clamp-2 text-sm text-slate-500">{alert.message}</p>
+                <p className="mt-1 line-clamp-2 text-sm text-zinc-400">{alert.message}</p>
               </div>
             ))}
             {!alerts.length ? <EmptyState title="No open alerts" description="Unresolved alerts will appear here." /> : null}

@@ -24,7 +24,7 @@ export function AlertCard({ alert, onResolve, onAcknowledge, onAssign, onEscalat
         <div className="flex items-start justify-between gap-4">
           <div>
             <CardTitle className="text-base">Alert #{alert.id}</CardTitle>
-            <p className="mt-1 text-sm text-slate-500">{alert.alert_type ?? "Data quality alert"}</p>
+            <p className="mt-1 text-sm text-zinc-400">{alert.alert_type ?? "Data quality alert"}</p>
           </div>
           <div className="flex flex-wrap justify-end gap-2">
             <SeverityBadge severity={alert.severity} />
@@ -33,8 +33,8 @@ export function AlertCard({ alert, onResolve, onAcknowledge, onAssign, onEscalat
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm leading-6 text-slate-700">{alert.message}</p>
-        <div className="grid gap-3 text-sm text-slate-500 md:grid-cols-3">
+        <p className="text-sm leading-6 text-zinc-300">{alert.message}</p>
+        <div className="grid gap-3 text-sm text-zinc-400 md:grid-cols-3">
           <div className="flex items-center gap-2">
             <UserRound className="size-4" />
             {alert.owner_team || "Unassigned team"}

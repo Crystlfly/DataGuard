@@ -18,10 +18,10 @@ export function AlertTimeline({ alert }: { alert?: AlertRecord }) {
       <div className="mt-4 space-y-3">
         {items.map((item) => (
           <div className="flex gap-3 text-sm" key={item.label}>
-            <CircleDot className="mt-0.5 size-4 text-blue-600" />
+            <CircleDot className="mt-0.5 size-4 text-[#B3FF4C]" />
             <div>
-              <div className="font-medium text-slate-900">{item.label}</div>
-              <div className="text-slate-500">{formatDateTime(item.time)}</div>
+              <div className="font-medium text-white">{item.label}</div>
+              <div className="text-zinc-400">{formatDateTime(item.time)}</div>
             </div>
           </div>
         ))}

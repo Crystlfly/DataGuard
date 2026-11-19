@@ -84,7 +84,7 @@ export default function AdminPage() {
         actions={<Button onClick={runChecksNow}><PlayCircle className="size-4" /> Run Checks Now</Button>}
       />
 
-      {message ? <Card className="rounded-xl border-blue-100 bg-blue-50"><CardContent className="p-4 text-sm text-blue-700">{message}</CardContent></Card> : null}
+      {message ? <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent></Card> : null}
 
       <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
         <EnterpriseMetricCard title="API Status" value={apiStatus} description="FastAPI health" icon={Server} tone={apiStatus === "READY" ? "green" : "red"} />
@@ -105,7 +105,7 @@ export default function AdminPage() {
             <Button className="w-full justify-start" variant="outline" onClick={loadAdmin}>Validate Config</Button>
             <Button className="w-full justify-start" variant="outline" onClick={runChecksNow}>Run Checks Now</Button>
             <Button className="w-full justify-start" variant="outline" disabled>Export Latest Report</Button>
-            <div className="rounded-xl border bg-slate-50 p-3 text-sm">
+            <div className="rounded-xl border bg-white/[0.03] p-3 text-sm">
               Current API state: <StatusBadge status={apiStatus} />
             </div>
           </CardContent>
@@ -126,7 +126,7 @@ export default function AdminPage() {
             <EnterpriseMetricCard title="Failed" value={failedCleaning.length} description="Needs review" icon={XCircle} tone="red" />
             <EnterpriseMetricCard title="Rolled Back" value={rolledBackCleaning.length} description="Restored changes" icon={RotateCcw} tone="slate" />
           </div>
-          <div className="rounded-xl border bg-slate-50 p-4 text-sm text-slate-600">
+          <div className="rounded-xl border bg-white/[0.03] p-4 text-sm text-zinc-300">
             Recent cleaning activity is also searchable in Audit Logs using events such as CLEANING_JOB_CREATED,
             CLEANING_JOB_EXECUTED, CLEANING_JOB_FAILED, and CLEANING_JOB_ROLLED_BACK.
           </div>

@@ -14,12 +14,12 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     <Badge
       variant="outline"
       className={cn(
-        "border px-2.5 py-1 font-medium",
-        tone === "success" && "border-green-200 bg-green-50 text-green-700",
-        tone === "warning" && "border-amber-200 bg-amber-50 text-amber-700",
-        tone === "danger" && "border-red-200 bg-red-50 text-red-700",
-        tone === "info" && "border-blue-200 bg-blue-50 text-blue-700",
-        tone === "neutral" && "border-slate-200 bg-slate-50 text-slate-700",
+        "border px-2.5 py-1 font-medium text-xs",
+        tone === "success" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+        tone === "warning" && "border-amber-500/30 bg-amber-500/10 text-amber-400",
+        tone === "danger" && "border-rose-500/30 bg-rose-500/10 text-rose-400",
+        tone === "info" && "border-[#B3FF4C]/30 bg-[#B3FF4C]/10 text-[#B3FF4C]",
+        tone === "neutral" && "border-white/10 bg-white/5 text-zinc-400",
         className
       )}
     >

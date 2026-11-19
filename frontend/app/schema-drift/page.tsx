@@ -60,7 +60,7 @@ export default function SchemaDriftPage() {
         subtitle="Monitor added, removed, reordered, or changed source-table columns detected by schema drift checks."
         onRefresh={loadRows}
       />
-      {message ? <Card className="rounded-xl border-blue-100 bg-blue-50"><CardContent className="p-4 text-sm text-blue-700">{message}</CardContent></Card> : null}
+      {message ? <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent></Card> : null}
       <div className="grid gap-4 md:grid-cols-3">
         <EnterpriseMetricCard title="Schema Checks" value={rows.length} description="Detected in results" icon={Columns3} tone="blue" />
         <EnterpriseMetricCard title="Drift Failures" value={failed.length} description="Requires review" icon={AlertTriangle} tone="red" />

@@ -63,7 +63,7 @@ export default function CheckResultsPage() {
         subtitle="All persisted data quality check outcomes with sorting, search, pagination, and export."
         onRefresh={loadRows}
       />
-      {message ? <Card className="rounded-xl border-blue-100 bg-blue-50"><CardContent className="p-4 text-sm text-blue-700">{message}</CardContent></Card> : null}
+      {message ? <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent></Card> : null}
       <div className="grid gap-4 md:grid-cols-4">
         <EnterpriseMetricCard title="Total Results" value={rows.length} description="Persisted checks" icon={ListChecks} tone="blue" />
         <EnterpriseMetricCard title="Passed" value={passed} description="Healthy checks" icon={CheckCircle2} tone="green" />

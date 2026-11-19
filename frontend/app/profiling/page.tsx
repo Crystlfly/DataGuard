@@ -95,7 +95,7 @@ export default function ProfilingPage() {
         onRefresh={loadProfiles}
       />
 
-      {message ? <Card className="rounded-xl border-blue-100 bg-blue-50"><CardContent className="p-4 text-sm text-blue-700">{message}</CardContent></Card> : null}
+      {message ? <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent></Card> : null}
 
       <div className="grid gap-4 md:grid-cols-4">
         <EnterpriseMetricCard title="Profile Rows" value={filteredRows.length} description="Current view" icon={Database} tone="blue" />
@@ -149,7 +149,7 @@ export default function ProfilingPage() {
                   <CardTitle className="flex items-center gap-2"><Fingerprint className="size-4" /> Rule Recommendation</CardTitle>
                   <CardDescription>{row.dataset_name}.{row.column_name}</CardDescription>
                 </CardHeader>
-                <CardContent className="text-sm text-slate-600">
+                <CardContent className="text-sm text-zinc-300">
                   {Number(row.null_rate ?? 0) > 20 ? "Consider a not-null or completeness rule." : "Consider uniqueness or categorical validation."}
                 </CardContent>
               </Card>

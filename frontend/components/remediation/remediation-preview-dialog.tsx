@@ -47,7 +47,7 @@ export function RemediationPreviewDialog({
       <DialogContent className="max-w-3xl p-0 sm:max-w-3xl">
         <DialogHeader className="border-b p-5">
           <div className="flex items-start gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-700">
+            <div className="flex size-10 items-center justify-center rounded-xl border border-[#B3FF4C]/30 bg-[#B3FF4C]/10 text-[#B3FF4C]">
               {mode === "execute" ? <PlayCircle className="size-5" /> : <ShieldAlert className="size-5" />}
             </div>
             <div>
@@ -58,11 +58,11 @@ export function RemediationPreviewDialog({
         </DialogHeader>
 
         <div className="grid gap-5 p-5">
-          <div className="rounded-xl border bg-slate-50 p-4">
+          <div className="rounded-xl border bg-white/[0.03] p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <div className="text-sm font-semibold text-slate-950">{preview?.summary ?? "No preview available"}</div>
-                <div className="mt-1 text-sm text-slate-500">
+                <div className="text-sm font-semibold text-white">{preview?.summary ?? "No preview available"}</div>
+                <div className="mt-1 text-sm text-zinc-400">
                   {preview?.target_table}.{preview?.target_column ?? "column"} · {preview?.total_rows_targeted ?? 0} row(s)
                 </div>
               </div>

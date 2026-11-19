@@ -39,7 +39,7 @@ const actionCopy: Record<RemediationAction, { title: string; description: string
     title: "Execute Cleaning Job",
     description: "This will apply the approved remediation action to the configured source table.",
     confirm: "Execute Job",
-    tone: "border-blue-100 bg-blue-50 text-blue-700",
+    tone: "border-[#B3FF4C]/30 bg-[#B3FF4C]/10 text-[#B3FF4C]",
   },
   rollback: {
     title: "Rollback Cleaning Job",
@@ -81,11 +81,11 @@ export function RemediationActionDialog({
 
         <div className="grid gap-5 p-5">
           {job ? (
-            <div className="rounded-xl border bg-slate-50 p-4">
+            <div className="rounded-xl border bg-white/[0.03] p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <div className="text-sm font-semibold text-slate-950">Cleaning Job #{job.id}</div>
-                  <div className="mt-1 text-xs uppercase tracking-wide text-slate-500">
+                  <div className="text-sm font-semibold text-white">Cleaning Job #{job.id}</div>
+                  <div className="mt-1 text-xs uppercase tracking-wide text-zinc-400">
                     {job.dataset_name ?? "Dataset"} / {job.cleaning_action ?? "Cleaning action"}
                   </div>
                 </div>
@@ -105,7 +105,7 @@ export function RemediationActionDialog({
                 <div className="text-sm font-semibold">
                   {action === "rollback" ? "Recorded Change History" : "Proposed Before/After Changes"}
                 </div>
-                <div className="text-sm text-slate-500">
+                <div className="text-sm text-zinc-400">
                   {action === "rollback"
                     ? "Rollback uses these recorded old values."
                     : "Admins should confirm these values before approval or execution."}
@@ -127,7 +127,7 @@ export function RemediationActionDialog({
           </div>
 
           {action === "execute" ? (
-            <div className="flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 p-3 text-sm text-blue-700">
+            <div className="flex items-start gap-2 rounded-xl border border-[#B3FF4C]/30 bg-[#B3FF4C]/10 p-3 text-sm text-[#B3FF4C]">
               <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
               Execution writes source changes and records before/after values in change history.
             </div>
@@ -157,8 +157,8 @@ export function RemediationActionDialog({
 function InfoTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg bg-white p-3">
-      <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-1 truncate font-medium text-slate-900" title={value}>
+      <div className="text-xs uppercase tracking-wide text-zinc-400">{label}</div>
+      <div className="mt-1 truncate font-medium text-white" title={value}>
         {value}
       </div>
     </div>
@@ -167,19 +167,19 @@ function InfoTile({ label, value }: { label: string; value: string }) {
 
 function ChangeRow({ change }: { change: ProposedCleaningChange }) {
   return (
-    <div className="rounded-lg border bg-slate-50 p-3 text-sm">
+    <div className="rounded-lg border bg-white/[0.03] p-3 text-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="font-medium text-slate-700">
+        <div className="font-medium text-zinc-300">
           {change.table_name}.{change.column_name}
         </div>
-        <div className="text-xs text-slate-500">{change.row_identifier}</div>
+        <div className="text-xs text-zinc-400">{change.row_identifier}</div>
       </div>
       <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto_1fr]">
-        <span className="truncate rounded-md bg-white px-2 py-1 text-slate-600" title={String(change.old_value ?? "")}>
+        <span className="truncate rounded-md bg-white px-2 py-1 text-zinc-300" title={String(change.old_value ?? "")}>
           {String(change.old_value ?? "NULL")}
         </span>
         <span className="self-center text-center text-slate-400">to</span>
-        <span className="truncate rounded-md bg-white px-2 py-1 font-medium text-slate-950" title={String(change.new_value ?? "")}>
+        <span className="truncate rounded-md bg-white px-2 py-1 font-medium text-white" title={String(change.new_value ?? "")}>
           {String(change.new_value ?? "NULL")}
         </span>
       </div>

@@ -73,7 +73,7 @@ export function IssueDetailDrawer({
               {suggestions.map((suggestion) => (
                 <div className="rounded-xl border p-3" key={suggestion.action}>
                   <div className="font-medium">{suggestion.action}</div>
-                  <p className="text-sm text-slate-500">{suggestion.description}</p>
+                  <p className="text-sm text-zinc-400">{suggestion.description}</p>
                 </div>
               ))}
             </TabsContent>
@@ -106,8 +106,8 @@ export function IssueDetailDrawer({
 function Info({ label, value }: { label: string; value?: string | number | null }) {
   return (
     <div className="grid grid-cols-[140px_1fr] gap-3">
-      <div className="text-slate-500">{label}</div>
-      <div className="font-medium text-slate-900">{value ?? "-"}</div>
+      <div className="text-zinc-400">{label}</div>
+      <div className="font-medium text-white">{value ?? "-"}</div>
     </div>
   )
 }
@@ -123,10 +123,10 @@ function ContextCard({
 }) {
   return (
     <div className="flex gap-3 rounded-xl border p-3">
-      <Icon className="mt-0.5 size-4 text-blue-600" />
+      <Icon className="mt-0.5 size-4 text-[#B3FF4C]" />
       <div>
         <div className="font-medium">{title}</div>
-        <p className="text-sm text-slate-500">{value}</p>
+        <p className="text-sm text-zinc-400">{value}</p>
       </div>
     </div>
   )

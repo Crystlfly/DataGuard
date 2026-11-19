@@ -318,15 +318,15 @@ export default function RemediationPage() {
         </Card>
       ) : null}
       {isScopedAnalyst ? (
-        <Card className="rounded-xl border-blue-100 bg-blue-50">
-          <CardContent className="p-4 text-sm text-blue-700">
+        <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10">
+          <CardContent className="p-4 text-sm text-[#B3FF4C]">
             Your remediation queue shows only issues and cleaning jobs assigned to you.
           </CardContent>
         </Card>
       ) : null}
       {message ? (
-        <Card className="rounded-xl border-blue-100 bg-blue-50">
-          <CardContent className="p-4 text-sm text-blue-700">{message}</CardContent>
+        <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10">
+          <CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent>
         </Card>
       ) : null}
 
@@ -410,7 +410,7 @@ function ProposedChangesCell({ job }: { job: CleaningJob }) {
 
   if (!proposed.length) {
     return (
-      <div className="max-w-md text-sm text-slate-500">
+      <div className="max-w-md text-sm text-zinc-400">
         {job.new_value ? `Set ${job.target_column ?? "value"} to ${job.new_value}` : "No preview rows recorded"}
       </div>
     )
@@ -419,22 +419,22 @@ function ProposedChangesCell({ job }: { job: CleaningJob }) {
   return (
     <div className="max-w-xl space-y-2">
       {proposed.slice(0, 3).map((change: ProposedCleaningChange, index: number) => (
-        <div key={`${change.row_identifier}-${index}`} className="rounded-lg border bg-slate-50 p-2 text-xs">
-          <div className="font-medium text-slate-700">
+        <div key={`${change.row_identifier}-${index}`} className="rounded-lg border bg-white/[0.03] p-2 text-xs">
+          <div className="font-medium text-zinc-300">
             {change.table_name}.{change.column_name} · {change.row_identifier}
           </div>
           <div className="mt-1 grid gap-1 sm:grid-cols-[1fr_auto_1fr]">
-            <span className="truncate rounded-md bg-white px-2 py-1 text-slate-600" title={String(change.old_value ?? "")}>
+            <span className="truncate rounded-md bg-white px-2 py-1 text-zinc-300" title={String(change.old_value ?? "")}>
               {String(change.old_value ?? "NULL")}
             </span>
             <span className="self-center text-slate-400">to</span>
-            <span className="truncate rounded-md bg-white px-2 py-1 font-medium text-slate-900" title={String(change.new_value ?? "")}>
+            <span className="truncate rounded-md bg-white px-2 py-1 font-medium text-white" title={String(change.new_value ?? "")}>
               {String(change.new_value ?? "NULL")}
             </span>
           </div>
         </div>
       ))}
-      {proposed.length > 3 ? <div className="text-xs text-slate-500">+{proposed.length - 3} more proposed row(s)</div> : null}
+      {proposed.length > 3 ? <div className="text-xs text-zinc-400">+{proposed.length - 3} more proposed row(s)</div> : null}
     </div>
   )
 }
@@ -456,10 +456,10 @@ function EnterpriseMetric({
         <CardContent className="p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">{title}</div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">{title}</div>
               <div className="mt-2 text-2xl font-semibold">{value}</div>
             </div>
-            <Icon className="size-5 text-slate-500" />
+            <Icon className="size-5 text-zinc-400" />
           </div>
         </CardContent>
       </Card>

@@ -20,11 +20,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [router])
 
   if (!ready) {
-    return <div className="min-h-screen bg-slate-50" />
+    return <div className="min-h-screen bg-[#050505]" />
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#050505] text-zinc-100">
       <Sidebar />
       <div className="min-h-screen lg:pl-76">
         <Topbar />

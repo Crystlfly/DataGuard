@@ -1,13 +1,13 @@
 export const enterpriseTheme = {
   colors: {
-    primary: "#2563eb",
-    success: "#16a34a",
-    warning: "#d97706",
-    danger: "#dc2626",
-    muted: "#64748b",
-    slate: "#0f172a",
+    primary: "#B3FF4C",
+    success: "#22c55e",
+    warning: "#eab308",
+    danger: "#f43f5e",
+    muted: "#71717a",
+    slate: "#141414",
   },
-  chartColors: ["#2563eb", "#16a34a", "#d97706", "#dc2626", "#7c3aed", "#0891b2"],
+  chartColors: ["#B3FF4C", "#22c55e", "#eab308", "#f43f5e", "#a855f7", "#38bdf8"],
 }
 
 export type StatusTone = "success" | "warning" | "danger" | "neutral" | "info"

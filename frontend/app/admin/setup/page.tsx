@@ -41,7 +41,7 @@ function statusIcon(status: CheckStatus) {
   if (status === "PASS") return <CheckCircle2 className="size-4 text-green-600" />
   if (status === "FAIL") return <AlertTriangle className="size-4 text-red-600" />
   if (status === "WARN") return <AlertTriangle className="size-4 text-amber-600" />
-  return <CircleDashed className="size-4 text-blue-600" />
+  return <CircleDashed className="size-4 text-[#B3FF4C]" />
 }
 
 function errorMessage(error: unknown) {
@@ -228,8 +228,8 @@ export default function SetupPage() {
       />
 
       {message ? (
-        <Card className="rounded-xl border-blue-100 bg-blue-50">
-          <CardContent className="p-4 text-sm text-blue-700">{message}</CardContent>
+        <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10">
+          <CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent>
         </Card>
       ) : null}
 
@@ -257,12 +257,12 @@ export default function SetupPage() {
                   <StatusBadge status={check.status} />
                   <Icon className="size-5 text-slate-400" />
                 </div>
-                <div className="rounded-xl border bg-slate-50 p-3 text-sm text-slate-600">
-                  <div className="font-medium text-slate-900">Result</div>
+                <div className="rounded-xl border bg-white/[0.03] p-3 text-sm text-zinc-300">
+                  <div className="font-medium text-white">Result</div>
                   <p className="mt-1">{check.detail}</p>
                 </div>
-                <div className="text-sm text-slate-500">
-                  <span className="font-medium text-slate-700">Next action: </span>
+                <div className="text-sm text-zinc-400">
+                  <span className="font-medium text-zinc-300">Next action: </span>
                   {check.action}
                 </div>
               </CardContent>
