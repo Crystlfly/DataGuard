@@ -47,7 +47,7 @@ export default function AuditLogsPage() {
   return (
     <AppShell>
       <PageHeader eyebrow="Administration" title="Audit Logs" subtitle="Trace operational actions across dashboard and API users." onRefresh={loadRows} />
-      {message ? <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent></Card> : null}
+      {message ? <Card className="rounded-md border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-3 text-xs text-[#B3FF4C]">{message}</CardContent></Card> : null}
       <EnterpriseDataTable columns={columns} data={rows} loading={loading} />
     </AppShell>
   )

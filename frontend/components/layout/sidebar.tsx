@@ -92,17 +92,17 @@ export function Sidebar() {
           </svg>
         </div>
         <div className="min-w-0">
-          <div className="truncate text-sm font-bold tracking-tight text-white">DataGuard</div>
-          <div className="text-[0.68rem] font-medium text-zinc-500 uppercase tracking-wider">Enterprise Console</div>
+          <div className="truncate text-xs font-bold tracking-tight text-white">DataGuard</div>
+          <div className="text-[0.62rem] font-medium text-zinc-500 uppercase tracking-wider">Enterprise Console</div>
         </div>
       </Link>
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
+      <nav className="flex-1 overflow-y-auto px-3 py-3">
         {visibleGroups.map((group) => (
-          <div className="mb-5" key={group.label}>
-            <div className="px-3 pb-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          <div className="mb-4" key={group.label}>
+            <div className="px-3 pb-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
               {group.label}
             </div>
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {group.items.map((item) => {
                 const Icon = item.icon
                 const active = pathname === item.href
@@ -111,13 +111,13 @@ export function Sidebar() {
                     key={`${group.label}-${item.label}`}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition",
+                      "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition",
                       active
                         ? "bg-[#B3FF4C]/10 text-[#B3FF4C] font-semibold border border-[#B3FF4C]/20"
                         : "text-zinc-400 hover:bg-white/[0.04] hover:text-white"
                     )}
                   >
-                    <Icon className="size-4" />
+                    <Icon className="size-3.5" />
                     <span className="truncate">{item.label}</span>
                   </Link>
                 )
@@ -126,8 +126,8 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
-      <div className="border-t border-white/[0.08] p-4">
-        <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-3 text-xs text-zinc-400">
+      <div className="border-t border-white/[0.08] p-3">
+        <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-2.5 text-[0.7rem] leading-relaxed text-zinc-400">
           API-protected SaaS console for data quality operations, governance, and incident triage.
         </div>
       </div>

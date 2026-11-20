@@ -14,7 +14,7 @@ export function SeverityBadge({ severity, className }: SeverityBadgeProps) {
     <Badge
       variant="outline"
       className={cn(
-        "border px-2.5 py-1 font-medium text-xs",
+        "border px-2 py-0.5 font-medium text-[0.68rem] leading-none",
         tone === "danger" && "border-rose-500/30 bg-rose-500/10 text-rose-400",
         tone === "warning" && "border-amber-500/30 bg-amber-500/10 text-amber-400",
         tone === "info" && "border-[#B3FF4C]/30 bg-[#B3FF4C]/10 text-[#B3FF4C]",

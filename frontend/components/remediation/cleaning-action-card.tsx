@@ -13,7 +13,7 @@ type CleaningActionCardProps = {
 export function CleaningActionCard({ suggestion, selected, onSelect }: CleaningActionCardProps) {
   return (
     <button className="text-left" onClick={() => onSelect?.(suggestion)}>
-      <Card className={`rounded-xl shadow-sm transition ${selected ? "border-[#B3FF4C] ring-2 ring-[#B3FF4C]/30" : ""}`}>
+      <Card className={`rounded-md border border-white/[0.08] bg-[#141414] transition ${selected ? "border-[#B3FF4C] ring-1 ring-[#B3FF4C]" : ""}`}>
         <CardHeader>
           <CardTitle className="flex items-center justify-between gap-3 text-base">
             <span className="flex items-center gap-2">

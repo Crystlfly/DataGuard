@@ -88,7 +88,7 @@ export default function QualityExplorerPage() {
         onRefresh={loadData}
       />
 
-      {message ? <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent></Card> : null}
+      {message ? <Card className="rounded-md border border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-3 text-xs text-[#B3FF4C]">{message}</CardContent></Card> : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <EnterpriseMetricCard title="Datasets" value={datasets.length} description="Monitored datasets" icon={Database} tone="blue" />
@@ -97,22 +97,22 @@ export default function QualityExplorerPage() {
         <EnterpriseMetricCard title="Profile Columns" value={selectedProfiles.length} description={selectedDataset ?? "No dataset"} icon={FileWarning} tone="green" />
       </div>
 
-      <div className="grid gap-3 rounded-xl border bg-white p-4 shadow-sm md:grid-cols-4">
-        <select className="rounded-lg border px-3 py-2 text-sm" value={filters.dataset} onChange={(event) => setFilters({ ...filters, dataset: event.target.value })}>
+      <div className="grid gap-3 rounded-md border border-white/[0.08] bg-[#141414] p-3.5 md:grid-cols-4">
+        <select className="rounded-md border border-white/10 bg-[#141414] px-3 py-1.5 text-xs text-white outline-none focus:border-[#B3FF4C]" value={filters.dataset} onChange={(event) => setFilters({ ...filters, dataset: event.target.value })}>
           <option value="ALL">All datasets</option>
           {datasets.map((dataset) => <option key={dataset} value={dataset}>{dataset}</option>)}
         </select>
-        <select className="rounded-lg border px-3 py-2 text-sm" value={filters.checkType} onChange={(event) => setFilters({ ...filters, checkType: event.target.value })}>
+        <select className="rounded-md border border-white/10 bg-[#141414] px-3 py-1.5 text-xs text-white outline-none focus:border-[#B3FF4C]" value={filters.checkType} onChange={(event) => setFilters({ ...filters, checkType: event.target.value })}>
           <option value="ALL">All check types</option>
           {checkTypes.map((checkType) => <option key={checkType} value={checkType}>{checkType}</option>)}
         </select>
-        <select className="rounded-lg border px-3 py-2 text-sm" value={filters.status} onChange={(event) => setFilters({ ...filters, status: event.target.value })}>
+        <select className="rounded-md border border-white/10 bg-[#141414] px-3 py-1.5 text-xs text-white outline-none focus:border-[#B3FF4C]" value={filters.status} onChange={(event) => setFilters({ ...filters, status: event.target.value })}>
           <option value="ALL">All statuses</option>
           <option value="PASS">Pass</option>
           <option value="FAIL">Fail</option>
           <option value="SKIPPED">Skipped</option>
         </select>
-        <select className="rounded-lg border px-3 py-2 text-sm" value={filters.severity} onChange={(event) => setFilters({ ...filters, severity: event.target.value })}>
+        <select className="rounded-md border border-white/10 bg-[#141414] px-3 py-1.5 text-xs text-white outline-none focus:border-[#B3FF4C]" value={filters.severity} onChange={(event) => setFilters({ ...filters, severity: event.target.value })}>
           <option value="ALL">All severity</option>
           <option value="CRITICAL">Critical</option>
           <option value="HIGH">High</option>
@@ -129,16 +129,16 @@ export default function QualityExplorerPage() {
           <TabsTrigger value="profiles">Column Profiles</TabsTrigger>
           <TabsTrigger value="raw">View Raw Data</TabsTrigger>
         </TabsList>
-        <TabsContent value="health" className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <TabsContent value="health" className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {datasetHealth.map((row) => (
-            <Card className="rounded-xl shadow-sm" key={row.dataset}>
+            <Card className="rounded-md border border-white/[0.08] bg-[#141414]" key={row.dataset}>
               <CardHeader>
                 <CardTitle>{row.dataset}</CardTitle>
                 <CardDescription>{formatNumber(row.checks)} checks</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-semibold">{formatPercent(row.score)}</div>
-                <p className="mt-1 text-sm text-zinc-400">{row.failed} failed checks</p>
+                <div className="text-xl font-semibold text-white">{formatPercent(row.score)}</div>
+                <p className="mt-1 text-xs text-zinc-400">{row.failed} failed checks</p>
               </CardContent>
             </Card>
           ))}
@@ -150,25 +150,25 @@ export default function QualityExplorerPage() {
           <EnterpriseDataTable columns={columns} data={failedResults} loading={loading} />
         </TabsContent>
         <TabsContent value="profiles" className="mt-5">
-          <Card className="rounded-xl shadow-sm">
+          <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
             <CardHeader>
               <CardTitle>Column Profile Summary</CardTitle>
               <CardDescription>Profiling API results for {selectedDataset ?? "the selected dataset"}.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 md:grid-cols-3">
               {selectedProfiles.slice(0, 9).map((profile) => (
-                <div className="rounded-xl border bg-white/[0.03] p-4" key={`${profile.dataset_name}-${profile.column_name}`}>
-                  <div className="font-medium">{profile.column_name}</div>
-                  <p className="text-sm text-zinc-400">{profile.data_type}</p>
-                  <div className="mt-3 text-sm">Null rate: {formatPercent(profile.null_rate)}</div>
-                  <div className="text-sm">Unique: {formatNumber(profile.unique_count)}</div>
+                <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-3 text-xs" key={`${profile.dataset_name}-${profile.column_name}`}>
+                  <div className="font-medium text-white">{profile.column_name}</div>
+                  <p className="text-zinc-400">{profile.data_type}</p>
+                  <div className="mt-2 text-zinc-300">Null rate: {formatPercent(profile.null_rate)}</div>
+                  <div className="text-zinc-300">Unique: {formatNumber(profile.unique_count)}</div>
                 </div>
               ))}
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="raw" className="mt-5">
-          <pre className="max-h-[520px] overflow-auto rounded-xl border bg-slate-950 p-4 text-xs text-slate-100">
+          <pre className="max-h-[520px] overflow-auto rounded-md border border-white/[0.08] bg-[#0c0c0c] p-4 text-xs font-mono text-zinc-300">
             {JSON.stringify(filteredResults.slice(0, 50), null, 2)}
           </pre>
         </TabsContent>

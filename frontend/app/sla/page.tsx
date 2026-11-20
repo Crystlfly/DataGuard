@@ -118,23 +118,27 @@ export default function SlaPage() {
 
       <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
         <EnterpriseDataTable columns={columns} data={rows} loading={loading} />
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
           <CardHeader>
             <CardTitle>Dataset Drill-Down</CardTitle>
-            <CardDescription>Select a dataset row to inspect SLA posture.</CardDescription>
+            <CardDescription className="text-zinc-400">Select a dataset row to inspect SLA posture.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <select className="w-full rounded-lg border px-3 py-2 text-sm" value={selected?.dataset_name ?? ""} onChange={(event) => setSelectedDataset(event.target.value)}>
+            <select
+              className="w-full rounded-md border border-white/10 bg-[#141414] px-3 py-1.5 text-xs text-white outline-none focus:border-[#B3FF4C]"
+              value={selected?.dataset_name ?? ""}
+              onChange={(event) => setSelectedDataset(event.target.value)}
+            >
               {Array.from(new Set(rows.map((row) => row.dataset_name).filter(Boolean))).map((dataset) => (
-                <option key={dataset} value={dataset}>{dataset}</option>
+                <option key={dataset} value={dataset} className="bg-[#141414] text-white">{dataset}</option>
               ))}
             </select>
             {selected ? (
-              <div className="space-y-3 rounded-xl border bg-white/[0.03] p-4 text-sm">
-                <div className="flex items-center justify-between"><span>Status</span><StatusBadge status={selected.sla_status} /></div>
-                <div className="flex items-center justify-between"><span>Actual score</span><strong>{formatPercent(selected.actual_quality_score)}</strong></div>
-                <div className="flex items-center justify-between"><span>Failed checks</span><strong>{formatNumber(selected.actual_failed_checks)}</strong></div>
-                <p className="text-zinc-400">{selected.reason || "No SLA reason recorded."}</p>
+              <div className="space-y-3 rounded-md border border-white/[0.08] bg-white/[0.02] p-4 text-xs text-zinc-300">
+                <div className="flex items-center justify-between"><span className="text-zinc-400">Status</span><StatusBadge status={selected.sla_status} /></div>
+                <div className="flex items-center justify-between"><span className="text-zinc-400">Actual score</span><strong className="text-white font-medium">{formatPercent(selected.actual_quality_score)}</strong></div>
+                <div className="flex items-center justify-between"><span className="text-zinc-400">Failed checks</span><strong className="text-white font-medium">{formatNumber(selected.actual_failed_checks)}</strong></div>
+                <p className="text-zinc-400 leading-relaxed">{selected.reason || "No SLA reason recorded."}</p>
               </div>
             ) : null}
           </CardContent>

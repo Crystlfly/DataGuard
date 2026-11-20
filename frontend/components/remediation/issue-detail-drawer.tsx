@@ -50,12 +50,12 @@ export function IssueDetailDrawer({
             <IssueStatusBadge status={issue.issue_status} />
             <SeverityBadge severity={issue.severity} />
           </div>
-          <Card className="rounded-xl">
+          <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
             <CardHeader>
-              <CardTitle>Issue Details</CardTitle>
-              <CardDescription>{issue.check_type}</CardDescription>
+              <CardTitle className="text-sm font-semibold text-white">Issue Details</CardTitle>
+              <CardDescription className="text-xs text-zinc-400">{issue.check_type}</CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-3 text-sm">
+            <CardContent className="grid gap-2.5 text-xs">
               <Info label="Dataset" value={issue.dataset_name} />
               <Info label="Column" value={issue.column_name} />
               <Info label="Row identifier" value={issue.row_identifier} />
@@ -65,15 +65,15 @@ export function IssueDetailDrawer({
           </Card>
           <Tabs defaultValue="suggestions">
             <TabsList>
-              <TabsTrigger value="suggestions">Suggested Actions</TabsTrigger>
-              <TabsTrigger value="context">Related Context</TabsTrigger>
-              <TabsTrigger value="sample">Sample Row</TabsTrigger>
+              <TabsTrigger value="suggestions" className="text-xs">Suggested Actions</TabsTrigger>
+              <TabsTrigger value="context" className="text-xs">Related Context</TabsTrigger>
+              <TabsTrigger value="sample" className="text-xs">Sample Row</TabsTrigger>
             </TabsList>
             <TabsContent value="suggestions" className="mt-4 space-y-3">
               {suggestions.map((suggestion) => (
-                <div className="rounded-xl border p-3" key={suggestion.action}>
-                  <div className="font-medium">{suggestion.action}</div>
-                  <p className="text-sm text-zinc-400">{suggestion.description}</p>
+                <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-3 text-xs" key={suggestion.action}>
+                  <div className="font-medium text-white">{suggestion.action}</div>
+                  <p className="mt-1 text-xs text-zinc-400">{suggestion.description}</p>
                 </div>
               ))}
             </TabsContent>
@@ -82,7 +82,7 @@ export function IssueDetailDrawer({
               <ContextCard icon={GitBranch} title="Lineage impact" value="Use Data Lineage to inspect upstream/downstream dependencies." />
             </TabsContent>
             <TabsContent value="sample" className="mt-4">
-              <pre className="max-h-80 overflow-auto rounded-xl bg-slate-950 p-3 text-xs text-slate-100">
+              <pre className="max-h-80 overflow-auto rounded-md border border-white/[0.08] bg-black/60 p-3 text-xs text-zinc-300 font-mono">
                 {issue.sample_row || "No sample row stored."}
               </pre>
             </TabsContent>
@@ -122,11 +122,11 @@ function ContextCard({
   value: string
 }) {
   return (
-    <div className="flex gap-3 rounded-xl border p-3">
-      <Icon className="mt-0.5 size-4 text-[#B3FF4C]" />
+    <div className="flex gap-3 rounded-md border border-white/[0.08] bg-white/[0.02] p-3 text-xs">
+      <Icon className="mt-0.5 size-4 text-[#B3FF4C] shrink-0" />
       <div>
-        <div className="font-medium">{title}</div>
-        <p className="text-sm text-zinc-400">{value}</p>
+        <div className="font-medium text-white">{title}</div>
+        <p className="mt-0.5 text-xs text-zinc-400">{value}</p>
       </div>
     </div>
   )

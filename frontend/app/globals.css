@@ -138,7 +138,7 @@
 
 @layer components {
   .enterprise-card {
-    @apply rounded-xl border border-white/[0.08] bg-[#141414];
+    @apply rounded-md border border-white/[0.08] bg-[#141414];
   }
 
   .enterprise-section {

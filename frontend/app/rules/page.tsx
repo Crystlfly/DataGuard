@@ -80,7 +80,7 @@ export default function RulesPage() {
         onRefresh={loadRules}
       />
 
-      {message ? <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent></Card> : null}
+      {message ? <Card className="rounded-md border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-3 text-xs text-[#B3FF4C]">{message}</CardContent></Card> : null}
 
       <div className="grid gap-4 md:grid-cols-4">
         <EnterpriseMetricCard title="Total Rules" value={rows.length} description="Flattened YAML rules" icon={SlidersHorizontal} tone="blue" />
@@ -89,13 +89,13 @@ export default function RulesPage() {
         <EnterpriseMetricCard title="Coverage Warnings" value={coverageWarnings.length} description="Potential config issues" icon={AlertTriangle} tone="amber" />
       </div>
 
-      <div className="grid gap-3 rounded-xl border bg-white p-4 shadow-sm md:grid-cols-3">
-        <input className="rounded-lg border px-3 py-2 text-sm" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search rules" />
-        <select className="rounded-lg border px-3 py-2 text-sm" value={dataset} onChange={(event) => setDataset(event.target.value)}>
+      <div className="grid gap-3 rounded-md border border-white/[0.08] bg-[#141414] p-3.5 md:grid-cols-3">
+        <input className="rounded-md border border-white/10 bg-[#141414] px-3 py-1.5 text-xs text-white placeholder:text-zinc-500 outline-none focus:border-[#B3FF4C]" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search rules" />
+        <select className="rounded-md border border-white/10 bg-[#141414] px-3 py-1.5 text-xs text-white outline-none focus:border-[#B3FF4C]" value={dataset} onChange={(event) => setDataset(event.target.value)}>
           <option value="ALL">All datasets</option>
           {datasets.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
-        <select className="rounded-lg border px-3 py-2 text-sm" value={ruleType} onChange={(event) => setRuleType(event.target.value)}>
+        <select className="rounded-md border border-white/10 bg-[#141414] px-3 py-1.5 text-xs text-white outline-none focus:border-[#B3FF4C]" value={ruleType} onChange={(event) => setRuleType(event.target.value)}>
           <option value="ALL">All rule types</option>
           {ruleTypes.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
@@ -122,13 +122,13 @@ export default function RulesPage() {
           <EnterpriseDataTable columns={columns} data={filteredRows.filter((row) => row.dataset_name === "global_rules")} loading={loading} />
         </TabsContent>
         <TabsContent value="raw" className="mt-5">
-          <Card className="rounded-xl shadow-sm">
+          <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
             <CardHeader>
               <CardTitle>Raw Rules Payload</CardTitle>
               <CardDescription>Rule editing and approval workflow is planned for Enterprise edition.</CardDescription>
             </CardHeader>
             <CardContent>
-              <pre className="max-h-[560px] overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-100">
+              <pre className="max-h-[560px] overflow-auto rounded-md border border-white/[0.08] bg-[#0c0c0c] p-4 text-xs font-mono text-zinc-300">
                 {JSON.stringify(rows, null, 2)}
               </pre>
             </CardContent>

@@ -313,20 +313,20 @@ export default function RemediationPage() {
       />
 
       {!canEdit ? (
-        <Card className="rounded-xl border-amber-100 bg-amber-50">
-          <CardContent className="p-4 text-sm text-amber-800">You have view-only access.</CardContent>
+        <Card className="rounded-md border border-amber-500/20 bg-amber-500/10">
+          <CardContent className="p-3 text-xs text-amber-400">You have view-only access.</CardContent>
         </Card>
       ) : null}
       {isScopedAnalyst ? (
-        <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10">
-          <CardContent className="p-4 text-sm text-[#B3FF4C]">
+        <Card className="rounded-md border-[#B3FF4C]/30 bg-[#B3FF4C]/10">
+          <CardContent className="p-3 text-xs text-[#B3FF4C]">
             Your remediation queue shows only issues and cleaning jobs assigned to you.
           </CardContent>
         </Card>
       ) : null}
       {message ? (
-        <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10">
-          <CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent>
+        <Card className="rounded-md border-[#B3FF4C]/30 bg-[#B3FF4C]/10">
+          <CardContent className="p-3 text-xs text-[#B3FF4C]">{message}</CardContent>
         </Card>
       ) : null}
 
@@ -424,11 +424,11 @@ function ProposedChangesCell({ job }: { job: CleaningJob }) {
             {change.table_name}.{change.column_name} · {change.row_identifier}
           </div>
           <div className="mt-1 grid gap-1 sm:grid-cols-[1fr_auto_1fr]">
-            <span className="truncate rounded-md bg-white px-2 py-1 text-zinc-300" title={String(change.old_value ?? "")}>
+            <span className="truncate rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-zinc-300" title={String(change.old_value ?? "")}>
               {String(change.old_value ?? "NULL")}
             </span>
-            <span className="self-center text-slate-400">to</span>
-            <span className="truncate rounded-md bg-white px-2 py-1 font-medium text-white" title={String(change.new_value ?? "")}>
+            <span className="self-center text-zinc-400">to</span>
+            <span className="truncate rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 font-medium text-white" title={String(change.new_value ?? "")}>
               {String(change.new_value ?? "NULL")}
             </span>
           </div>
@@ -452,14 +452,14 @@ function EnterpriseMetric({
   const Icon = icon
   return (
     <div>
-      <Card className="rounded-xl shadow-sm">
-        <CardContent className="p-5">
+      <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
+        <CardContent className="p-3.5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">{title}</div>
-              <div className="mt-2 text-2xl font-semibold">{value}</div>
+              <div className="text-[0.68rem] font-semibold uppercase tracking-wider text-zinc-400">{title}</div>
+              <div className="mt-1.5 text-lg font-medium tracking-tight text-white">{value}</div>
             </div>
-            <Icon className="size-5 text-zinc-400" />
+            <Icon className="size-4 text-zinc-400" />
           </div>
         </CardContent>
       </Card>

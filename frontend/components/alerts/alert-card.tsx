@@ -19,7 +19,7 @@ export function AlertCard({ alert, onResolve, onAcknowledge, onAssign, onEscalat
   const status = alert.is_resolved ? "RESOLVED" : alert.escalation_status || "OPEN"
 
   return (
-    <Card className="rounded-xl shadow-sm">
+    <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
       <CardHeader className="gap-3">
         <div className="flex items-start justify-between gap-4">
           <div>

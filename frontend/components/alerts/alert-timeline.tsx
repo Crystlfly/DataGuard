@@ -13,8 +13,8 @@ export function AlertTimeline({ alert }: { alert?: AlertRecord }) {
   ].filter(Boolean) as { label: string; time?: string }[]
 
   return (
-    <div className="rounded-xl border bg-white p-4 shadow-sm">
-      <div className="font-semibold">Alert Timeline</div>
+    <div className="rounded-md border border-white/[0.08] bg-[#141414] p-3.5">
+      <div className="text-sm font-semibold text-white">Alert Timeline</div>
       <div className="mt-4 space-y-3">
         {items.map((item) => (
           <div className="flex gap-3 text-sm" key={item.label}>

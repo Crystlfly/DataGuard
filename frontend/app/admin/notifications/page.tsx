@@ -22,14 +22,14 @@ export default function NotificationsPage() {
         {channels.map((channel) => {
           const Icon = channel.icon
           return (
-            <Card className="rounded-xl shadow-sm" key={channel.name}>
+            <Card className="rounded-md border border-white/[0.08] bg-[#141414]" key={channel.name}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><Icon className="size-4" /> {channel.name}</CardTitle>
-                <CardDescription>{channel.status}</CardDescription>
+                <CardDescription className="text-zinc-400">{channel.status}</CardDescription>
               </CardHeader>
               <CardContent className="flex items-center justify-between">
                 <StatusBadge status="INFO" />
-                <Button variant="outline" disabled>Test</Button>
+                <Button variant="outline" size="sm" className="h-7 text-xs" disabled>Test</Button>
               </CardContent>
             </Card>
           )

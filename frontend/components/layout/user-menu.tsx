@@ -12,13 +12,13 @@ export function UserMenu() {
   const role = getStoredUserRole()
 
   return (
-    <div className="flex items-center gap-2 rounded-md border border-white/10 bg-[#141414] px-2 py-1.5">
-      <div className="flex size-8 items-center justify-center rounded-sm border border-white/10 bg-white/5 text-[#B3FF4C]">
-        <UserRound className="size-4" />
+    <div className="flex items-center gap-1.5 rounded-md border border-white/10 bg-[#141414] px-1.5 py-1">
+      <div className="flex size-7 items-center justify-center rounded-sm border border-white/10 bg-white/5 text-[#B3FF4C]">
+        <UserRound className="size-3.5" />
       </div>
-      <div className="hidden text-left md:block">
-        <div className="text-xs font-semibold text-white">{username}</div>
-        <div className="text-[0.68rem] text-zinc-500">Connected</div>
+      <div className="hidden text-left md:block pr-1">
+        <div className="text-xs font-semibold leading-tight text-white">{username}</div>
+        <div className="text-[0.62rem] text-zinc-500">Connected</div>
       </div>
       <Button
         size="icon-sm"

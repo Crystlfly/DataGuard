@@ -224,8 +224,8 @@ export default function AlertsPage() {
       />
 
       {message ? (
-        <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10 shadow-sm">
-          <CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent>
+        <Card className="rounded-md border-[#B3FF4C]/30 bg-[#B3FF4C]/10">
+          <CardContent className="p-3 text-xs text-[#B3FF4C]">{message}</CardContent>
         </Card>
       ) : null}
 

@@ -89,7 +89,7 @@ export function AlertAssignDialog({
             <Label htmlFor="alert-assignee">Assignee</Label>
             <select
               id="alert-assignee"
-              className="h-10 rounded-lg border border-white/[0.08] bg-white px-3 text-sm shadow-sm outline-none transition focus:border-[#B3FF4C] focus:ring-2 focus:ring-[#B3FF4C]/30"
+              className="h-9 rounded-md border border-white/10 bg-[#141414] px-3 text-xs text-white outline-none transition focus:border-[#B3FF4C]"
               disabled={loading || saving || !activeUsers.length}
               value={selectedUsername}
               onChange={(event) => onSelectedUsernameChange(event.target.value)}
@@ -104,19 +104,19 @@ export function AlertAssignDialog({
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border bg-white p-3">
+            <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-3 text-white">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
                 <UsersRound className="size-4" /> Active Users
               </div>
-              <div className="mt-2 text-2xl font-semibold">{activeUsers.length}</div>
+              <div className="mt-2 text-xl font-semibold text-white">{activeUsers.length}</div>
             </div>
-            <div className="rounded-xl border bg-white p-3">
+            <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-3 text-white">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
                 <UserCheck className="size-4" /> Analysts
               </div>
-              <div className="mt-2 text-2xl font-semibold">{analystCount}</div>
+              <div className="mt-2 text-xl font-semibold text-white">{analystCount}</div>
             </div>
-            <div className="rounded-xl border bg-white p-3">
+            <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-3 text-white">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
                 <BellRing className="size-4" /> Severity
               </div>
@@ -127,7 +127,7 @@ export function AlertAssignDialog({
           </div>
 
           {selectedUser ? (
-            <div className="rounded-xl border border-[#B3FF4C]/30 bg-[#B3FF4C]/10 p-4">
+            <div className="rounded-md border border-[#B3FF4C]/30 bg-[#B3FF4C]/10 p-3.5">
               <div className="text-sm font-semibold text-white">{selectedUser.full_name || selectedUser.username}</div>
               <div className="mt-1 text-sm text-[#B3FF4C]">{selectedUser.email || "No email recorded"}</div>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -138,8 +138,8 @@ export function AlertAssignDialog({
           ) : null}
 
           {error ? (
-            <div className="flex items-start gap-2 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700">
-              <AlertCircle className="mt-0.5 size-4 shrink-0" />
+            <div className="flex items-start gap-2 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-300">
+              <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-400" />
               <span>{error}</span>
             </div>
           ) : null}

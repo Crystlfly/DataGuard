@@ -28,16 +28,16 @@ export function EnterpriseMetricCard({
 }: EnterpriseMetricCardProps) {
   return (
     <Card className="rounded-md border border-white/[0.08] bg-[#141414] text-white">
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between gap-4">
+      <CardContent className="p-3">
+        <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">{title}</p>
-            <div className="mt-3 text-2xl font-bold tracking-tight text-white">{value}</div>
-            {description ? <p className="mt-1 text-sm text-zinc-500">{description}</p> : null}
+            <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-zinc-400 truncate">{title}</p>
+            <div className="mt-1 text-base font-semibold tracking-tight text-white truncate">{value}</div>
+            {description ? <p className="mt-0.5 text-[0.68rem] text-zinc-500 truncate">{description}</p> : null}
           </div>
           {Icon ? (
-            <div className={cn("rounded-md p-2.5", toneClasses[tone])}>
-              <Icon className="size-5" />
+            <div className={cn("shrink-0 rounded-md p-1.5", toneClasses[tone])}>
+              <Icon className="size-3.5" />
             </div>
           ) : null}
         </div>

@@ -47,10 +47,10 @@ export function CleaningJobWizard({ issue, suggestions, onJobCreated }: Cleaning
 
   if (!issue) {
     return (
-      <Card className="rounded-xl shadow-sm">
+      <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
         <CardHeader>
           <CardTitle>Cleaning Job Wizard</CardTitle>
-          <CardDescription>Select an issue first to create a cleaning job.</CardDescription>
+          <CardDescription className="text-zinc-400">Select an issue first to create a cleaning job.</CardDescription>
         </CardHeader>
       </Card>
     )
@@ -177,20 +177,20 @@ export function CleaningJobWizard({ issue, suggestions, onJobCreated }: Cleaning
   }
 
   return (
-    <Card className="rounded-xl shadow-sm">
+    <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
       <CardHeader>
         <CardTitle>Cleaning Job Wizard</CardTitle>
-        <CardDescription>Preview first, then submit for approval or execution.</CardDescription>
+        <CardDescription className="text-zinc-400">Preview first, then submit for approval or execution.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         <section>
-          <div className="text-sm font-semibold">Step 1: Selected issue</div>
-          <div className="mt-2 rounded-xl border bg-white/[0.03] p-3 text-sm">
+          <div className="text-xs font-semibold text-zinc-300">Step 1: Selected issue</div>
+          <div className="mt-2 rounded-md border border-white/[0.08] bg-white/[0.02] p-3 text-xs text-zinc-300">
             #{issue.id} {issue.dataset_name}.{issue.column_name} - {issue.reason}
           </div>
         </section>
         <section>
-          <div className="text-sm font-semibold">Step 2: Select cleaning action</div>
+          <div className="text-xs font-semibold text-zinc-300">Step 2: Select cleaning action</div>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {suggestions.map((suggestion) => (
               <CleaningActionCard
@@ -207,41 +207,41 @@ export function CleaningJobWizard({ issue, suggestions, onJobCreated }: Cleaning
         </section>
         <section className="grid gap-3 md:grid-cols-2">
           <div>
-            <label className="text-sm font-medium">Target table</label>
-            <Input value={targetTable} onChange={(event) => setTargetTable(event.target.value)} />
+            <label className="text-xs font-medium text-zinc-400">Target table</label>
+            <Input value={targetTable} onChange={(event) => setTargetTable(event.target.value)} className="mt-1 h-8 text-xs border-white/10 bg-white/[0.03] text-white" />
           </div>
           <div>
-            <label className="text-sm font-medium">Target column</label>
-            <Input value={targetColumn} onChange={(event) => setTargetColumn(event.target.value)} />
+            <label className="text-xs font-medium text-zinc-400">Target column</label>
+            <Input value={targetColumn} onChange={(event) => setTargetColumn(event.target.value)} className="mt-1 h-8 text-xs border-white/10 bg-white/[0.03] text-white" />
           </div>
           <div>
-            <label className="text-sm font-medium">Row identifier</label>
-            <Input value={rowIdentifier} onChange={(event) => setRowIdentifier(event.target.value)} placeholder="id=123" />
+            <label className="text-xs font-medium text-zinc-400">Row identifier</label>
+            <Input value={rowIdentifier} onChange={(event) => setRowIdentifier(event.target.value)} placeholder="id=123" className="mt-1 h-8 text-xs border-white/10 bg-white/[0.03] text-white" />
           </div>
           <div>
-            <label className="text-sm font-medium">New value</label>
-            <Input value={newValue} onChange={(event) => setNewValue(event.target.value)} placeholder="Replacement value" />
+            <label className="text-xs font-medium text-zinc-400">New value</label>
+            <Input value={newValue} onChange={(event) => setNewValue(event.target.value)} placeholder="Replacement value" className="mt-1 h-8 text-xs border-white/10 bg-white/[0.03] text-white" />
           </div>
           {selected?.action === "regex_replace" ? (
             <>
-              <Input value={pattern} onChange={(event) => setPattern(event.target.value)} placeholder="Regex pattern" />
-              <Input value={replacement} onChange={(event) => setReplacement(event.target.value)} placeholder="Replacement" />
+              <Input value={pattern} onChange={(event) => setPattern(event.target.value)} placeholder="Regex pattern" className="h-8 text-xs border-white/10 bg-white/[0.03] text-white" />
+              <Input value={replacement} onChange={(event) => setReplacement(event.target.value)} placeholder="Replacement" className="h-8 text-xs border-white/10 bg-white/[0.03] text-white" />
             </>
           ) : null}
         </section>
-        <section className="flex items-center justify-between rounded-xl border bg-white/[0.03] p-3">
+        <section className="flex items-center justify-between rounded-md border border-white/[0.08] bg-white/[0.02] p-3">
           <div>
-            <div className="text-sm font-semibold">Step 4: Preview changes</div>
-            <p className="text-sm text-zinc-400">Always dry-run before creating a job.</p>
+            <div className="text-xs font-semibold text-white">Step 4: Preview changes</div>
+            <p className="text-xs text-zinc-400">Always dry-run before creating a job.</p>
           </div>
           {selected ? <RiskBadge risk={selected.risk} /> : null}
         </section>
         <div className="flex flex-wrap gap-2">
-          <Button onClick={runPreview}>Preview</Button>
-          <Button onClick={requestCreateJob} disabled={!preview}>Create Job</Button>
-          <Button variant="outline" onClick={requestExecuteNow} disabled={!canExecute || !preview}>Execute Now</Button>
+          <Button onClick={runPreview} size="sm" className="h-8 text-xs">Preview</Button>
+          <Button onClick={requestCreateJob} disabled={!preview} size="sm" className="h-8 text-xs">Create Job</Button>
+          <Button variant="outline" onClick={requestExecuteNow} disabled={!canExecute || !preview} size="sm" className="h-8 text-xs">Execute Now</Button>
         </div>
-        {message ? <div className="rounded-xl border bg-[#B3FF4C]/10 p-3 text-sm text-[#B3FF4C]">{message}</div> : null}
+        {message ? <div className="rounded-md border border-[#B3FF4C]/30 bg-[#B3FF4C]/10 p-3 text-xs text-[#B3FF4C]">{message}</div> : null}
         {preview ? (
           <div className="space-y-3">
             <div className="text-sm text-zinc-300">{preview.summary}</div>

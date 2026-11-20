@@ -33,7 +33,7 @@ const actionCopy: Record<RemediationAction, { title: string; description: string
     title: "Approve Cleaning Job",
     description: "Review the proposed before/after values before releasing this job for execution.",
     confirm: "Approve Job",
-    tone: "border-green-100 bg-green-50 text-green-700",
+    tone: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
   },
   execute: {
     title: "Execute Cleaning Job",
@@ -45,7 +45,7 @@ const actionCopy: Record<RemediationAction, { title: string; description: string
     title: "Rollback Cleaning Job",
     description: "This will restore values using the recorded change history for this executed job.",
     confirm: "Rollback Job",
-    tone: "border-amber-100 bg-amber-50 text-amber-700",
+    tone: "border-amber-500/30 bg-amber-500/10 text-amber-400",
   },
 }
 
@@ -69,19 +69,19 @@ export function RemediationActionDialog({
       <DialogContent className="max-w-3xl p-0 sm:max-w-3xl">
         <DialogHeader className="border-b p-5">
           <div className="flex items-start gap-3">
-            <div className={`flex size-10 items-center justify-center rounded-xl border ${copy.tone}`}>
-              <Icon className="size-5" />
+            <div className={`flex size-9 items-center justify-center rounded-md border ${copy.tone}`}>
+              <Icon className="size-4" />
             </div>
             <div>
-              <DialogTitle>{copy.title}</DialogTitle>
-              <DialogDescription className="mt-1">{copy.description}</DialogDescription>
+              <DialogTitle className="text-sm font-semibold text-white">{copy.title}</DialogTitle>
+              <DialogDescription className="mt-1 text-xs text-zinc-400">{copy.description}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         <div className="grid gap-5 p-5">
           {job ? (
-            <div className="rounded-xl border bg-white/[0.03] p-4">
+            <div className="rounded-md border border-white/[0.08] bg-[#141414] p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="text-sm font-semibold text-white">Cleaning Job #{job.id}</div>
@@ -114,11 +114,11 @@ export function RemediationActionDialog({
               <StatusBadge status={`${rowsToShow.length} row(s)`} />
             </div>
             {!rowsToShow.length ? (
-              <div className="rounded-xl border border-amber-100 bg-amber-50 p-4 text-sm text-amber-800">
+              <div className="rounded-md border border-amber-500/20 bg-amber-500/10 p-3.5 text-xs text-amber-300">
                 No row-level change preview is recorded for this job. Review the target table, column, and action carefully.
               </div>
             ) : (
-              <div className="max-h-80 space-y-2 overflow-y-auto rounded-xl border bg-white p-3">
+              <div className="max-h-80 space-y-2 overflow-y-auto rounded-md border border-white/[0.08] bg-black/40 p-3">
                 {rowsToShow.map((change, index) => (
                   <ChangeRow key={`${change.row_identifier}-${index}`} change={change} />
                 ))}
@@ -127,14 +127,14 @@ export function RemediationActionDialog({
           </div>
 
           {action === "execute" ? (
-            <div className="flex items-start gap-2 rounded-xl border border-[#B3FF4C]/30 bg-[#B3FF4C]/10 p-3 text-sm text-[#B3FF4C]">
+            <div className="flex items-start gap-2 rounded-md border border-[#B3FF4C]/30 bg-[#B3FF4C]/10 p-3 text-xs text-[#B3FF4C]">
               <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
               Execution writes source changes and records before/after values in change history.
             </div>
           ) : null}
 
           {error ? (
-            <div className="flex items-start gap-2 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700">
+            <div className="flex items-start gap-2 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-300">
               <AlertTriangle className="mt-0.5 size-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -156,7 +156,7 @@ export function RemediationActionDialog({
 
 function InfoTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-white p-3">
+    <div className="rounded-md border border-white/10 bg-white/[0.03] p-3">
       <div className="text-xs uppercase tracking-wide text-zinc-400">{label}</div>
       <div className="mt-1 truncate font-medium text-white" title={value}>
         {value}
@@ -167,7 +167,7 @@ function InfoTile({ label, value }: { label: string; value: string }) {
 
 function ChangeRow({ change }: { change: ProposedCleaningChange }) {
   return (
-    <div className="rounded-lg border bg-white/[0.03] p-3 text-sm">
+    <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-2.5 text-xs">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="font-medium text-zinc-300">
           {change.table_name}.{change.column_name}
@@ -175,11 +175,11 @@ function ChangeRow({ change }: { change: ProposedCleaningChange }) {
         <div className="text-xs text-zinc-400">{change.row_identifier}</div>
       </div>
       <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto_1fr]">
-        <span className="truncate rounded-md bg-white px-2 py-1 text-zinc-300" title={String(change.old_value ?? "")}>
+        <span className="truncate rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-zinc-300" title={String(change.old_value ?? "")}>
           {String(change.old_value ?? "NULL")}
         </span>
-        <span className="self-center text-center text-slate-400">to</span>
-        <span className="truncate rounded-md bg-white px-2 py-1 font-medium text-white" title={String(change.new_value ?? "")}>
+        <span className="self-center text-center text-zinc-400">to</span>
+        <span className="truncate rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 font-medium text-white" title={String(change.new_value ?? "")}>
           {String(change.new_value ?? "NULL")}
         </span>
       </div>

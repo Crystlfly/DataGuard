@@ -197,7 +197,7 @@ export default function UserManagementPage() {
         </Alert>
       ) : (
         <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
-          <Card className="rounded-xl shadow-sm">
+          <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <UserPlus className="size-5" /> Create User
@@ -246,7 +246,7 @@ export default function UserManagementPage() {
                   <Label htmlFor="role">Role</Label>
                   <select
                     id="role"
-                    className="h-9 rounded-lg border border-input bg-white px-3 text-sm"
+                    className="h-8 rounded-md border border-white/10 bg-[#141414] px-3 text-xs text-white outline-none focus:border-[#B3FF4C]"
                     value={form.role}
                     onChange={(event) => setForm((current) => ({ ...current, role: event.target.value as UserRole }))}
                   >
@@ -291,7 +291,7 @@ export default function UserManagementPage() {
       )}
 
       {isAdmin ? (
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
           <CardHeader>
             <CardTitle>Profile Update Approval Queue</CardTitle>
             <CardDescription>Review user-submitted profile completion changes before they update the users table.</CardDescription>
@@ -326,11 +326,11 @@ function RequestedChanges({ update }: { update: ProfileUpdateRequest }) {
           <div key={field} className="rounded-lg border bg-white/[0.03] p-2 text-xs">
             <div className="font-semibold uppercase tracking-wide text-zinc-400">{field.replaceAll("_", " ")}</div>
             <div className="mt-1 grid gap-1 md:grid-cols-[1fr_auto_1fr]">
-              <span className="truncate rounded-md bg-white px-2 py-1" title={String(currentValue ?? "")}>
+              <span className="truncate rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-zinc-300" title={String(currentValue ?? "")}>
                 {String(currentValue || "Blank")}
               </span>
-              <span className="self-center text-slate-400">to</span>
-              <span className="truncate rounded-md bg-white px-2 py-1 font-medium text-white" title={String(nextValue ?? "")}>
+              <span className="self-center text-zinc-400">to</span>
+              <span className="truncate rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 font-medium text-white" title={String(nextValue ?? "")}>
                 {String(nextValue || "Blank")}
               </span>
             </div>

@@ -66,19 +66,19 @@ export default function ProfilingPage() {
 
   function BarCard({ title, description, data, dataKey, xKey }: { title: string; description: string; data: Record<string, unknown>[]; dataKey: string; xKey: string }) {
     return (
-      <Card className="rounded-xl shadow-sm">
+      <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
         <CardHeader>
-          <CardTitle>{title}</CardTitle>
-          <CardDescription>{description}</CardDescription>
+          <CardTitle className="text-sm font-semibold text-white">{title}</CardTitle>
+          <CardDescription className="text-xs text-zinc-400">{description}</CardDescription>
         </CardHeader>
         <CardContent className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey={xKey} tickLine={false} axisLine={false} />
-              <YAxis tickLine={false} axisLine={false} />
-              <Tooltip />
-              <Bar dataKey={dataKey} fill="#2563eb" radius={[6, 6, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.06)" />
+              <XAxis dataKey={xKey} tickLine={false} axisLine={false} tick={{ fill: "#a1a1aa", fontSize: 11 }} />
+              <YAxis tickLine={false} axisLine={false} tick={{ fill: "#a1a1aa", fontSize: 11 }} />
+              <Tooltip contentStyle={{ backgroundColor: "#141414", borderColor: "rgba(255, 255, 255, 0.1)", borderRadius: "6px", color: "#fff", fontSize: "12px" }} />
+              <Bar dataKey={dataKey} fill="#B3FF4C" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -95,7 +95,7 @@ export default function ProfilingPage() {
         onRefresh={loadProfiles}
       />
 
-      {message ? <Card className="rounded-xl border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-4 text-sm text-[#B3FF4C]">{message}</CardContent></Card> : null}
+      {message ? <Card className="rounded-md border-[#B3FF4C]/30 bg-[#B3FF4C]/10"><CardContent className="p-3 text-xs text-[#B3FF4C]">{message}</CardContent></Card> : null}
 
       <div className="grid gap-4 md:grid-cols-4">
         <EnterpriseMetricCard title="Profile Rows" value={filteredRows.length} description="Current view" icon={Database} tone="blue" />
@@ -104,12 +104,12 @@ export default function ProfilingPage() {
         <EnterpriseMetricCard title="Recommendations" value={recommendations.length} description="Potential rules" icon={AlertTriangle} tone="red" />
       </div>
 
-      <div className="grid gap-3 rounded-xl border bg-white p-4 shadow-sm md:grid-cols-2">
-        <select className="rounded-lg border px-3 py-2 text-sm" value={dataset} onChange={(event) => { setDataset(event.target.value); setColumn("ALL") }}>
+      <div className="grid gap-3 rounded-md border border-white/[0.08] bg-[#141414] p-3.5 md:grid-cols-2">
+        <select className="rounded-md border border-white/10 bg-[#141414] px-3 py-1.5 text-xs text-white outline-none focus:border-[#B3FF4C]" value={dataset} onChange={(event) => { setDataset(event.target.value); setColumn("ALL") }}>
           <option value="ALL">All datasets</option>
           {datasets.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
-        <select className="rounded-lg border px-3 py-2 text-sm" value={column} onChange={(event) => setColumn(event.target.value)}>
+        <select className="rounded-md border border-white/10 bg-[#141414] px-3 py-1.5 text-xs text-white outline-none focus:border-[#B3FF4C]" value={column} onChange={(event) => setColumn(event.target.value)}>
           <option value="ALL">All columns</option>
           {columnsForDataset.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
@@ -144,7 +144,7 @@ export default function ProfilingPage() {
         <TabsContent value="categorical" className="mt-5">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {recommendations.map((row) => (
-              <Card className="rounded-xl shadow-sm" key={`${row.dataset_name}-${row.column_name}`}>
+              <Card className="rounded-md border border-white/[0.08] bg-[#141414]" key={`${row.dataset_name}-${row.column_name}`}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2"><Fingerprint className="size-4" /> Rule Recommendation</CardTitle>
                   <CardDescription>{row.dataset_name}.{row.column_name}</CardDescription>

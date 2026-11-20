@@ -96,27 +96,27 @@ export default function AdminPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
           <CardHeader>
             <CardTitle>Maintenance Actions</CardTitle>
-            <CardDescription>Operational actions are API-protected and audited.</CardDescription>
+            <CardDescription className="text-zinc-400">Operational actions are API-protected and audited.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full justify-start" variant="outline" onClick={loadAdmin}>Validate Config</Button>
-            <Button className="w-full justify-start" variant="outline" onClick={runChecksNow}>Run Checks Now</Button>
-            <Button className="w-full justify-start" variant="outline" disabled>Export Latest Report</Button>
-            <div className="rounded-xl border bg-white/[0.03] p-3 text-sm">
-              Current API state: <StatusBadge status={apiStatus} />
+            <Button className="w-full justify-start text-xs h-8" variant="outline" onClick={loadAdmin}>Validate Config</Button>
+            <Button className="w-full justify-start text-xs h-8" variant="outline" onClick={runChecksNow}>Run Checks Now</Button>
+            <Button className="w-full justify-start text-xs h-8" variant="outline" disabled>Export Latest Report</Button>
+            <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-3 text-xs text-zinc-300 flex items-center justify-between">
+              <span>Current API state:</span> <StatusBadge status={apiStatus} />
             </div>
           </CardContent>
         </Card>
         <EnterpriseDataTable columns={columns} data={auditLogs} loading={loading} />
       </div>
 
-      <Card className="rounded-xl shadow-sm">
+      <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
         <CardHeader>
           <CardTitle>Data Cleaning Activity</CardTitle>
-          <CardDescription>Operational remediation job counts and recent cleaning events.</CardDescription>
+          <CardDescription className="text-zinc-400">Operational remediation job counts and recent cleaning events.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="grid gap-4 md:grid-cols-5">
@@ -126,7 +126,7 @@ export default function AdminPage() {
             <EnterpriseMetricCard title="Failed" value={failedCleaning.length} description="Needs review" icon={XCircle} tone="red" />
             <EnterpriseMetricCard title="Rolled Back" value={rolledBackCleaning.length} description="Restored changes" icon={RotateCcw} tone="slate" />
           </div>
-          <div className="rounded-xl border bg-white/[0.03] p-4 text-sm text-zinc-300">
+          <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-3.5 text-xs text-zinc-400 leading-relaxed">
             Recent cleaning activity is also searchable in Audit Logs using events such as CLEANING_JOB_CREATED,
             CLEANING_JOB_EXECUTED, CLEANING_JOB_FAILED, and CLEANING_JOB_ROLLED_BACK.
           </div>

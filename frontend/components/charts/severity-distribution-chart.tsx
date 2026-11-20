@@ -26,10 +26,10 @@ export function SeverityDistributionChart({
         <CardTitle className="text-white">{title}</CardTitle>
         <CardDescription className="text-zinc-400">{description}</CardDescription>
       </CardHeader>
-      <CardContent className="h-80">
+      <CardContent className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={data} dataKey="value" nameKey="name" innerRadius={58} outerRadius={92} paddingAngle={3} stroke="#141414" strokeWidth={2} isAnimationActive={false}>
+            <Pie data={data} dataKey="value" nameKey="name" innerRadius={48} outerRadius={76} paddingAngle={3} stroke="#141414" strokeWidth={2} isAnimationActive={false}>
               {data.map((entry, index) => (
                 <Cell key={entry.name} fill={colors[index % colors.length]} />
               ))}
@@ -38,7 +38,8 @@ export function SeverityDistributionChart({
               contentStyle={{
                 backgroundColor: "#141414",
                 borderColor: "rgba(255, 255, 255, 0.1)",
-                borderRadius: "0.75rem",
+                borderRadius: "4px",
+                fontSize: "12px",
                 color: "#fff",
               }}
             />

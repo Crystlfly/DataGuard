@@ -16,17 +16,18 @@ export function SlaTrendChart({ data }: { data: SlaPoint[] }) {
         <CardTitle className="text-white">SLA Compliance Trend</CardTitle>
         <CardDescription className="text-zinc-400">Percentage of datasets meeting SLA by run.</CardDescription>
       </CardHeader>
-      <CardContent className="h-80">
+      <CardContent className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.08)" />
-            <XAxis dataKey="run_id" tickLine={false} axisLine={false} stroke="#71717a" />
-            <YAxis domain={[0, 100]} tickLine={false} axisLine={false} stroke="#71717a" />
+            <XAxis dataKey="run_id" tickLine={false} axisLine={false} stroke="#71717a" tick={{ fontSize: 10, fill: "#71717a" }} />
+            <YAxis domain={[0, 100]} tickLine={false} axisLine={false} stroke="#71717a" tick={{ fontSize: 10, fill: "#71717a" }} />
             <Tooltip
               contentStyle={{
                 backgroundColor: "#141414",
                 borderColor: "rgba(255, 255, 255, 0.1)",
-                borderRadius: "0.75rem",
+                borderRadius: "4px",
+                fontSize: "12px",
                 color: "#fff",
               }}
               itemStyle={{ color: "#B3FF4C" }}
@@ -36,7 +37,7 @@ export function SlaTrendChart({ data }: { data: SlaPoint[] }) {
               dataKey="compliance"
               stroke="#B3FF4C"
               fill="rgba(179, 255, 76, 0.06)"
-              strokeWidth={3}
+              strokeWidth={2}
               isAnimationActive={false}
             />
           </AreaChart>

@@ -86,7 +86,7 @@ export function EnterpriseDataTable<TData, TValue>({
   const visibleRows = useMemo(() => table.getFilteredRowModel().rows.map((row) => row.original), [table])
 
   return (
-    <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+    <div className="overflow-hidden rounded-md border border-white/[0.08] bg-[#141414]">
       <DataTableToolbar
         searchValue={globalFilter ?? ""}
         onSearchChange={setGlobalFilter}

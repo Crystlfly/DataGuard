@@ -7,10 +7,10 @@ export function RiskBadge({ risk }: { risk?: string }) {
     <Badge
       variant="outline"
       className={cn(
-        "border px-2.5 py-1 font-medium",
-        normalized === "LOW" && "border-green-200 bg-green-50 text-green-700",
-        normalized === "MEDIUM" && "border-amber-200 bg-amber-50 text-amber-700",
-        normalized === "HIGH" && "border-red-200 bg-red-50 text-red-700"
+        "rounded-sm border px-2 py-0.5 text-[0.68rem] font-medium tracking-wide uppercase",
+        normalized === "LOW" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+        normalized === "MEDIUM" && "border-amber-500/30 bg-amber-500/10 text-amber-400",
+        normalized === "HIGH" && "border-red-500/30 bg-red-500/10 text-red-400"
       )}
     >
       {normalized}
