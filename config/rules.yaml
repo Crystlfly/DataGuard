@@ -1,17 +1,22 @@
 # Data Quality Rules Configuration
-# Project: Data Quality Framework
-# Last Updated: 2026-07-04
-# Description: Comprehensive validation rules for all data sources
+# Project: DataGuard Framework
+# Description: Quality rules for my_store_db
 
-customers:
+users:
   required_columns:
-    - customer_id
+    - id
     - name
     - email
+    - role
     - created_at
 
   unique_columns:
-    - customer_id
+    - id
+    - email
+
+  not_null_columns:
+    - id
+    - name
     - email
 
   format_checks:
@@ -23,48 +28,28 @@ customers:
       min_length: 2
       max_length: 100
 
-  custom_rules:
-    email_domains:
-      allowed_domains:
-        - gmail.com
-        - yahoo.com
-        - outlook.com
-        - company.com
-
-  not_null_columns:
-    - customer_id
-    - name
-    - email
-    - created_at
-
-  freshness:
-    created_at:
-      max_delay_days: 7
-
 orders:
   required_columns:
-    - order_id
-    - customer_id
-    - order_date
+    - id
+    - user_id
     - amount
     - status
+    - order_date
 
   unique_columns:
-    - order_id
+    - id
 
   not_null_columns:
-    - order_id
-    - customer_id
-    - order_date
+    - id
+    - user_id
     - amount
     - status
+    - order_date
 
   range_checks:
     amount:
       min: 0
       max: 1000000
-    order_date:
-      max_date: today
 
   categorical_checks:
     status:
@@ -74,67 +59,49 @@ orders:
         - shipped
         - delivered
         - cancelled
-        - refunded
 
   referential_integrity:
-    customer_id:
-      foreign_table: customers
-      foreign_column: customer_id
-
-  freshness:
-    order_date:
-      max_delay_days: 1
-
-  custom_rules:
-    business_logic:
-      - rule: cancelled_orders_zero_amount
-        description: "Cancelled orders should have amount refunded"
-      - rule: future_dates_not_allowed
-        description: "Order date cannot be in the future"
+    user_id:
+      foreign_table: users
+      foreign_column: id
 
 products:
   required_columns:
-    - product_id
-    - product_name
+    - id
+    - title
+    - category
     - price
-    - stock
+    - in_stock
 
   unique_columns:
-    - product_id
+    - id
 
   not_null_columns:
-    - product_id
-    - product_name
+    - id
+    - title
     - price
-    - stock
+    - in_stock
 
   range_checks:
     price:
       min: 0
       max: 100000
-    stock:
+    in_stock:
       min: 0
       max: 10000
-    product_name:
-      min_length: 3
+    title:
+      min_length: 2
       max_length: 200
 
-  format_checks:
-    product_name: alphanumeric_with_spaces_and_hyphens
-
-  freshness:
-    updated_at:
-      max_delay_days: 3
-
-  custom_rules:
-    stock_alerts:
-      low_stock_threshold: 10
-      out_of_stock_threshold: 0
-    pricing_rules:
-      - rule: price_must_be_positive
-        description: "Product price must be greater than 0"
-      - rule: discount_validation
-        description: "Discounted price cannot be greater than original price"
+  categorical_checks:
+    category:
+      allowed_values:
+        - Electronics
+        - Accessories
+        - Audio
+        - Office
+        - Furniture
+        - Lighting
 
 # Global rules applied to all tables
 global_rules:
@@ -174,22 +141,22 @@ global_rules:
 
 # Cross-table validation rules
 cross_table_validations:
-  - name: customer_order_relationship
-    description: "Every order must have a valid customer"
+  - name: user_order_relationship
+    description: "Every order must have a valid user"
     validation:
       source_table: orders
-      source_column: customer_id
-      target_table: customers
-      target_column: customer_id
+      source_column: user_id
+      target_table: users
+      target_column: id
       type: foreign_key
 
   - name: orphaned_orders
-    description: "Check for orders without corresponding customers"
+    description: "Check for orders without corresponding users"
     validation:
       type: orphan_check
       child_table: orders
-      parent_table: customers
-      join_column: customer_id
+      parent_table: users
+      join_column: user_id
 
 # Quality score thresholds
 quality_thresholds:

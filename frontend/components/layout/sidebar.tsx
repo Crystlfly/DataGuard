@@ -33,8 +33,8 @@ const groups = [
   {
     label: "Command Center",
     items: [
-      { href: "/dashboard", label: "Executive Dashboard", icon: LayoutDashboard },
       { href: "/overview", label: "Overview", icon: BarChart3 },
+      { href: "/dashboard", label: "Executive Dashboard", icon: LayoutDashboard },
     ],
   },
   {

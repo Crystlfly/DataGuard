@@ -6,20 +6,14 @@ import {
   ArrowRight,
   Check,
   CheckCircle2,
-  ChevronDown,
-  ChevronUp,
   CircleDashed,
   Database,
   ExternalLink,
-  FileCheck2,
   HardDrive,
-  KeyRound,
   Layers,
   Loader2,
   PlayCircle,
   RefreshCw,
-  Send,
-  Server,
   Sparkles,
   Table2,
 } from "lucide-react"
@@ -29,30 +23,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { EnterpriseMetricCard } from "@/components/ui-custom/metric-card"
 import { PageHeader } from "@/components/ui-custom/page-header"
-import { StatusBadge } from "@/components/ui-custom/status-badge"
-import { api, getApiBaseUrl, getStoredApiToken } from "@/lib/api-client"
+import { api } from "@/lib/api-client"
 import { formatDateTime } from "@/lib/formatters"
 import type {
   DatabaseConnectionPayload,
   DatabaseStatusResponse,
   DatabaseTestResponse,
-  RunSummary,
   TableSummary,
 } from "@/lib/types"
-
-type CheckStatus = "PASS" | "FAIL" | "WARN" | "INFO" | "CHECKING"
-
-type SetupCheck = {
-  id: string
-  title: string
-  description: string
-  status: CheckStatus
-  detail: string
-  action: string
-  icon: typeof CheckCircle2
-}
 
 const PROVIDERS = [
   {
@@ -62,38 +41,6 @@ const PROVIDERS = [
     defaultPort: 5432,
     badge: "Recommended",
     description: "Connect to self-hosted, AWS RDS, Supabase, Neon, or GCP Cloud SQL.",
-  },
-  {
-    id: "redshift",
-    name: "Amazon Redshift",
-    category: "Cloud Data Warehouse",
-    defaultPort: 5439,
-    badge: "AWS Native",
-    description: "Enterprise analytics cluster on Amazon Web Services.",
-  },
-  {
-    id: "snowflake",
-    name: "Snowflake",
-    category: "Data Cloud",
-    defaultPort: 443,
-    badge: "Data Cloud",
-    description: "Scalable cloud warehouse for analytics and multi-cloud datasets.",
-  },
-  {
-    id: "bigquery",
-    name: "Google BigQuery",
-    category: "Serverless Analytics",
-    defaultPort: 443,
-    badge: "GCP Native",
-    description: "Petabyte-scale serverless data warehouse on Google Cloud.",
-  },
-  {
-    id: "mongodb",
-    name: "MongoDB",
-    category: "Document Store",
-    defaultPort: 27017,
-    badge: "NoSQL",
-    description: "Document-oriented database for operational collections.",
   },
 ]
 
@@ -107,7 +54,7 @@ export default function SetupPage() {
   const [connectionMode, setConnectionMode] = useState<"params" | "uri">("params")
   const [host, setHost] = useState("localhost")
   const [port, setPort] = useState("5432")
-  const [database, setDatabase] = useState("data_quality_db")
+  const [database, setDatabase] = useState("my_store_db")
   const [username, setUsername] = useState("postgres")
   const [password, setPassword] = useState("")
   const [sslMode, setSslMode] = useState("prefer")
@@ -119,10 +66,6 @@ export default function SetupPage() {
   const [testResult, setTestResult] = useState<DatabaseTestResponse | null>(null)
   const [actionMessage, setActionMessage] = useState("")
 
-  // Diagnostics Checklist State
-  const [showDiagnostics, setShowDiagnostics] = useState(false)
-  const [checks, setChecks] = useState<SetupCheck[]>([])
-  const [latestRun, setLatestRun] = useState<RunSummary | null>(null)
   const [lastChecked, setLastChecked] = useState("")
   const [runningChecks, setRunningChecks] = useState(false)
 
@@ -134,10 +77,15 @@ export default function SetupPage() {
       if (status.source_type) {
         setSelectedProvider(status.source_type)
       }
-      if (status.host && !host) setHost(status.host)
-      if (status.port && !port) setPort(String(status.port))
-      if (status.database && !database) setDatabase(status.database)
-      if (status.username && !username) setUsername(status.username)
+      if (status.host) setHost(status.host)
+      if (status.port) setPort(String(status.port))
+      if (status.database) setDatabase(status.database)
+      if (status.username) setUsername(status.username)
+      if (status.last_verified) {
+        setLastChecked(formatDateTime(status.last_verified))
+      } else {
+        setLastChecked(formatDateTime(new Date()))
+      }
     } catch (err) {
       console.error("Failed to load active database status:", err)
     } finally {
@@ -147,7 +95,6 @@ export default function SetupPage() {
 
   useEffect(() => {
     loadDatabaseStatus()
-    runSetupChecks()
   }, [])
 
   function handleSelectProvider(providerId: string) {
@@ -164,7 +111,7 @@ export default function SetupPage() {
     setConnectionMode("params")
     setHost("localhost")
     setPort("5432")
-    setDatabase("data_quality_db")
+    setDatabase("my_store_db")
     setUsername("postgres")
     setPassword("postgres")
     setSslMode("prefer")
@@ -230,135 +177,6 @@ export default function SetupPage() {
     }
   }
 
-  // Preflight Diagnostic Checks
-  async function runSetupChecks() {
-    setChecks(baseChecks("CHECKING"))
-    const token = getStoredApiToken()
-    const nextChecks = baseChecks("INFO")
-
-    nextChecks[0] = {
-      ...nextChecks[0],
-      status: getApiBaseUrl() && token ? "PASS" : "WARN",
-      detail: getApiBaseUrl()
-        ? `Frontend points to ${getApiBaseUrl()}${token ? " and has an API token in session/env." : " but no API token is available."}`
-        : "NEXT_PUBLIC_API_BASE_URL is not configured.",
-      action: token ? "No action required." : "Log in again or set NEXT_PUBLIC_API_TOKEN in frontend/.env.local.",
-    }
-
-    try {
-      const health = await api.health()
-      nextChecks[1] = {
-        ...nextChecks[1],
-        status: health.status === "ok" ? "PASS" : "WARN",
-        detail: `FastAPI health endpoint returned ${health.status}.`,
-        action: "Keep uvicorn running while using the frontend.",
-      }
-    } catch (err) {
-      nextChecks[1] = {
-        ...nextChecks[1],
-        status: "FAIL",
-        detail: err instanceof Error ? err.message : "Backend unreachable",
-        action: "Start backend with uvicorn api.app:app --reload.",
-      }
-    }
-
-    try {
-      await api.runs()
-      nextChecks[2] = {
-        ...nextChecks[2],
-        status: "PASS",
-        detail: "Protected API request succeeded with current session token.",
-        action: "No action required.",
-      }
-    } catch (err) {
-      nextChecks[2] = {
-        ...nextChecks[2],
-        status: "FAIL",
-        detail: err instanceof Error ? err.message : "Auth check failed",
-        action: "Ensure session credentials match API_TOKEN.",
-      }
-    }
-
-    try {
-      const ready = await api.ready()
-      nextChecks[3] = {
-        ...nextChecks[3],
-        status: ready.status === "ready" ? "PASS" : "FAIL",
-        detail: `Monitoring database is ${ready.database ?? ready.status}.`,
-        action: ready.status === "ready" ? "No action required." : "Check database environment variables.",
-      }
-    } catch (err) {
-      nextChecks[3] = {
-        ...nextChecks[3],
-        status: "FAIL",
-        detail: err instanceof Error ? err.message : "Database check failed",
-        action: "Run python cli.py init-db after confirming PostgreSQL is running.",
-      }
-    }
-
-    try {
-      const runs = await api.runs()
-      const latest = runs[0] ?? null
-      setLatestRun(latest)
-      nextChecks[4] = {
-        ...nextChecks[4],
-        status: runs.length ? "PASS" : "WARN",
-        detail: runs.length
-          ? `Monitoring tables are readable. Latest run is #${latest?.run_id}.`
-          : "Monitoring tables are reachable but no runs exist yet.",
-        action: runs.length ? "No action required." : "Run checks once to populate run history.",
-      }
-      nextChecks[5] = {
-        ...nextChecks[5],
-        status: runs.length ? "PASS" : "WARN",
-        detail: runs.length
-          ? `Previous data extraction completed at ${formatDateTime(latest?.run_time)}.`
-          : "Source DB verified through active connector.",
-        action: "Use Run Checks Now to validate source DB access.",
-      }
-    } catch (err) {
-      nextChecks[4] = {
-        ...nextChecks[4],
-        status: "FAIL",
-        detail: err instanceof Error ? err.message : "Table check failed",
-        action: "Initialize monitoring tables with python cli.py init-db.",
-      }
-      nextChecks[5] = {
-        ...nextChecks[5],
-        status: "WARN",
-        detail: "Source DB cannot be inferred until monitoring tables are reachable.",
-        action: "Fix monitoring DB first, then run checks.",
-      }
-    }
-
-    try {
-      const rules = await api.rules()
-      nextChecks[6] = {
-        ...nextChecks[6],
-        status: rules.length ? "PASS" : "WARN",
-        detail: rules.length ? `${rules.length} active rule rows loaded from rules.yaml.` : "Rules catalog returned no rows.",
-        action: rules.length ? "No action required." : "Check config/rules.yaml.",
-      }
-    } catch (err) {
-      nextChecks[6] = {
-        ...nextChecks[6],
-        status: "FAIL",
-        detail: err instanceof Error ? err.message : "Rules check failed",
-        action: "Validate config/rules.yaml syntax.",
-      }
-    }
-
-    nextChecks[7] = {
-      ...nextChecks[7],
-      status: "INFO",
-      detail: "Notification readiness configured through backend notification modules.",
-      action: "Open Notification Center for channel-level setup.",
-    }
-
-    setChecks(nextChecks)
-    setLastChecked(formatDateTime(new Date()))
-  }
-
   async function runChecksNow() {
     setRunningChecks(true)
     setActionMessage("Running quality checks against connected source database...")
@@ -366,7 +184,6 @@ export default function SetupPage() {
       const response = await api.runChecks()
       setActionMessage(response.success ? "Checks completed successfully." : "Checks completed with errors. Review logs.")
       await loadDatabaseStatus()
-      await runSetupChecks()
     } catch (err) {
       setActionMessage(err instanceof Error ? err.message : "Unable to run checks.")
     } finally {
@@ -392,7 +209,6 @@ export default function SetupPage() {
         subtitle="Connect, verify, and switch the external database monitored by DataGuard."
         onRefresh={() => {
           loadDatabaseStatus()
-          runSetupChecks()
         }}
         actions={
           <Button
@@ -440,7 +256,7 @@ export default function SetupPage() {
             <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               1. Select Database Type
             </label>
-            <div className="mt-2.5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="mt-2.5 max-w-sm">
               {PROVIDERS.map((provider) => {
                 const isSelected = selectedProvider === provider.id
                 return (
@@ -448,7 +264,7 @@ export default function SetupPage() {
                     key={provider.id}
                     type="button"
                     onClick={() => handleSelectProvider(provider.id)}
-                    className={`flex flex-col justify-between rounded-md border p-4 text-left transition cursor-pointer ${
+                    className={`flex flex-col justify-between rounded-md border p-4 text-left transition cursor-pointer w-full ${
                       isSelected
                         ? "border-[#B3FF4C] bg-[#B3FF4C]/5 text-white"
                         : "border-white/[0.08] bg-white/[0.02] text-zinc-400 hover:border-white/20 hover:text-white hover:bg-white/[0.04]"
@@ -737,140 +553,6 @@ export default function SetupPage() {
           </div>
         </CardContent>
       </Card>
-
-      {/* =========================================================================
-          SECTION 3: PREFLIGHT SYSTEM DIAGNOSTICS (COLLAPSIBLE)
-          ========================================================================= */}
-      <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
-        <CardHeader
-          className="cursor-pointer flex flex-row items-center justify-between select-none"
-          onClick={() => setShowDiagnostics(!showDiagnostics)}
-        >
-          <div>
-            <CardTitle className="text-white text-base flex items-center gap-2">
-              <Server className="size-4 text-zinc-400" />
-              System Readiness & Environment Diagnostics
-            </CardTitle>
-            <CardDescription className="text-zinc-400">
-              Verify backend API health, authentication token, rules configuration, and monitoring tables.
-            </CardDescription>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-zinc-400 hover:text-white"
-            onClick={(e) => {
-              e.stopPropagation()
-              setShowDiagnostics(!showDiagnostics)
-            }}
-          >
-            {showDiagnostics ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-            {showDiagnostics ? "Hide Diagnostics" : "Show Diagnostics"}
-          </Button>
-        </CardHeader>
-
-        {showDiagnostics ? (
-          <CardContent className="space-y-4 pt-2">
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              {(checks.length ? checks : baseChecks("CHECKING")).map((check) => {
-                const Icon = check.icon
-                return (
-                  <div key={check.id} className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3.5 space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                        <Icon className="size-4 text-zinc-400" />
-                        {check.title}
-                      </div>
-                      <StatusBadge status={check.status} />
-                    </div>
-                    <p className="text-xs text-zinc-400 line-clamp-2">{check.detail}</p>
-                    <div className="text-[0.7rem] text-zinc-500">
-                      <span className="font-semibold text-zinc-400">Action:</span> {check.action}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </CardContent>
-        ) : null}
-      </Card>
     </AppShell>
   )
-}
-
-function baseChecks(status: CheckStatus): SetupCheck[] {
-  return [
-    {
-      id: "frontend-env",
-      title: "Frontend environment",
-      description: "NEXT_PUBLIC_API_BASE_URL and API token availability.",
-      status,
-      detail: "Waiting for frontend environment check.",
-      action: "Confirm frontend/.env.local.",
-      icon: FileCheck2,
-    },
-    {
-      id: "api-health",
-      title: "FastAPI health",
-      description: "Public backend health endpoint.",
-      status,
-      detail: "Waiting for API health check.",
-      action: "Start uvicorn if this check fails.",
-      icon: Server,
-    },
-    {
-      id: "api-auth",
-      title: "API auth status",
-      description: "Protected X-API-Key request validation.",
-      status,
-      detail: "Waiting for API authentication check.",
-      action: "Use the API_TOKEN from backend .env.",
-      icon: KeyRound,
-    },
-    {
-      id: "monitor-db",
-      title: "Monitoring DB connection",
-      description: "Backend readiness check against PostgreSQL.",
-      status,
-      detail: "Waiting for database readiness check.",
-      action: "Check PostgreSQL and database environment variables.",
-      icon: Database,
-    },
-    {
-      id: "monitor-tables",
-      title: "Monitoring tables",
-      description: "Run history endpoint confirms table readability.",
-      status,
-      detail: "Waiting for monitoring table check.",
-      action: "Run python cli.py init-db if tables are missing.",
-      icon: Table2,
-    },
-    {
-      id: "source-db",
-      title: "Source DB connection",
-      description: "Inferred from successful historical data quality runs.",
-      status,
-      detail: "Waiting for source DB inference.",
-      action: "Run checks to verify source extraction.",
-      icon: Database,
-    },
-    {
-      id: "rules",
-      title: "rules.yaml status",
-      description: "Rules Catalog API validates flattened YAML rules.",
-      status,
-      detail: "Waiting for rules check.",
-      action: "Fix YAML if this check fails.",
-      icon: FileCheck2,
-    },
-    {
-      id: "notifications",
-      title: "Notification config",
-      description: "Mailtrap, Slack, and Teams setup readiness.",
-      status,
-      detail: "Waiting for notification config check.",
-      action: "Review backend .env notification variables.",
-      icon: Send,
-    },
-  ]
 }

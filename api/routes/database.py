@@ -355,9 +355,11 @@ def connect_database(
         # Audit log event
         identity = get_request_identity(request)
         log_audit_event(
-            action="database_connected",
-            username=identity["username"],
-            details={
+            event_type="DATABASE_CONNECTED",
+            username=identity.get("username"),
+            entity_type="database",
+            entity_id=db_url.database,
+            new_value={
                 "source_type": req.source_type,
                 "host": db_url.host,
                 "port": db_url.port,
