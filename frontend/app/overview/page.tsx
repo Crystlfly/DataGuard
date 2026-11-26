@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Activity, AlertTriangle, BarChart3, ShieldCheck } from "lucide-react"
+import { Activity, BarChart3, ShieldCheck, Wrench } from "lucide-react"
 
 import { AppShell } from "@/components/app-shell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,8 +9,8 @@ import { PageHeader } from "@/components/ui-custom/page-header"
 
 const actions = [
   { href: "/dashboard", title: "Executive Dashboard", description: "Management-ready KPIs and trends.", icon: BarChart3 },
+  { href: "/remediation", title: "Data Remediation Center", description: "Review and verify live fixes for data defects.", icon: Wrench },
   { href: "/quality-explorer", title: "Quality Explorer", description: "Investigate checks, datasets, columns, and profiles.", icon: Activity },
-  { href: "/alerts", title: "Alert Operations", description: "Triage ownership, severity, and alert resolution.", icon: AlertTriangle },
   { href: "/sla", title: "SLA Command Center", description: "Track dataset-level governance commitments.", icon: ShieldCheck },
 ]
 

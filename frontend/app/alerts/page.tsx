@@ -1,327 +1,427 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import type { ColumnDef } from "@tanstack/react-table"
-import { AlertTriangle, BellRing, CheckCircle2, ShieldAlert } from "lucide-react"
+import Link from "next/link"
+import {
+  AlertCircle,
+  AlertTriangle,
+  BellRing,
+  Check,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  Flame,
+  Info,
+  Loader2,
+  RefreshCw,
+  Search,
+  Wrench,
+} from "lucide-react"
 
-import { AlertCard } from "@/components/alerts/alert-card"
-import { AlertFilters, AlertFiltersPanel } from "@/components/alerts/alert-filters"
-import { AlertAssignDialog } from "@/components/alerts/alert-assign-dialog"
-import { AlertTimeline } from "@/components/alerts/alert-timeline"
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
-import { EnterpriseDataTable } from "@/components/data-table/data-table"
 import { AppShell } from "@/components/app-shell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { EnterpriseMetricCard } from "@/components/ui-custom/metric-card"
+import { Input } from "@/components/ui/input"
 import { PageHeader } from "@/components/ui-custom/page-header"
 import { SeverityBadge } from "@/components/ui-custom/severity-badge"
 import { StatusBadge } from "@/components/ui-custom/status-badge"
-import { api, getStoredUserRole } from "@/lib/api-client"
+import { api } from "@/lib/api-client"
 import { formatDateTime } from "@/lib/formatters"
-import type { AlertRecord, AppUser } from "@/lib/types"
-
-const initialFilters: AlertFilters = {
-  search: "",
-  severity: "ALL",
-  status: "ALL",
-  ownerTeam: "",
-  assignedTo: "",
-}
-
-function alertStatus(alert: AlertRecord) {
-  if (alert.is_resolved) return "RESOLVED"
-  if (alert.escalation_status) return alert.escalation_status
-  return "OPEN"
-}
+import type { AlertRecord } from "@/lib/types"
 
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<AlertRecord[]>([])
-  const [filters, setFilters] = useState(initialFilters)
-  const [selectedAlert, setSelectedAlert] = useState<AlertRecord | undefined>()
-  const [assignAlertTarget, setAssignAlertTarget] = useState<AlertRecord | undefined>()
-  const [assignDialogOpen, setAssignDialogOpen] = useState(false)
-  const [assignUsers, setAssignUsers] = useState<AppUser[]>([])
-  const [selectedAssignee, setSelectedAssignee] = useState("")
-  const [assignError, setAssignError] = useState("")
-  const [assignUsersLoading, setAssignUsersLoading] = useState(false)
-  const [assignSaving, setAssignSaving] = useState(false)
-  const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(true)
-  const canAssignAlerts = true
+  const [searchQuery, setSearchQuery] = useState("")
+  const [severityFilter, setSeverityFilter] = useState<string>("ALL")
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "RESOLVED">("ALL")
+  const [actionMessage, setActionMessage] = useState("")
+  const [actionError, setActionError] = useState("")
+  const [dismissingId, setDismissingId] = useState<number | null>(null)
+  const [dismissingAll, setDismissingAll] = useState(false)
 
-  async function loadAlerts() {
+  const loadAlerts = useCallback(async () => {
     setLoading(true)
-    setMessage("")
+    setActionError("")
     try {
-      setAlerts(await api.alerts())
+      const data = await api.alerts()
+      setAlerts(data)
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Unable to load alerts.")
+      setActionError(err instanceof Error ? err.message : "Unable to load notification history.")
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     loadAlerts()
-  }, [])
+  }, [loadAlerts])
 
-  const filteredAlerts = alerts.filter((alert) => {
-    const blob = JSON.stringify(alert).toLowerCase()
-    const status = alertStatus(alert)
-    return (
-      (!filters.search || blob.includes(filters.search.toLowerCase())) &&
-      (filters.severity === "ALL" || alert.severity === filters.severity) &&
-      (filters.status === "ALL" || status === filters.status) &&
-      (!filters.ownerTeam || String(alert.owner_team ?? "").toLowerCase().includes(filters.ownerTeam.toLowerCase())) &&
-      (!filters.assignedTo || String(alert.assigned_to ?? "").toLowerCase().includes(filters.assignedTo.toLowerCase()))
-    )
-  })
+  const openAlerts = useMemo(() => alerts.filter((a) => !a.is_resolved), [alerts])
+  const resolvedAlerts = useMemo(() => alerts.filter((a) => a.is_resolved), [alerts])
+  const criticalAlerts = useMemo(
+    () => alerts.filter((a) => (a.severity || "").toUpperCase() === "CRITICAL"),
+    [alerts]
+  )
 
-  const openAlerts = alerts.filter((alert) => !alert.is_resolved)
-  const criticalAlerts = alerts.filter((alert) => alert.severity === "CRITICAL")
-  const resolvedAlerts = alerts.filter((alert) => alert.is_resolved)
-  const escalatedAlerts = alerts.filter((alert) => alert.escalation_status === "ESCALATED" || alert.escalated_at)
+  const latestAlertTime = useMemo(() => {
+    if (!alerts.length) return null
+    return alerts[0]?.created_at
+  }, [alerts])
 
-  const replaceAlert = useCallback((updated: AlertRecord) => {
-    setAlerts((current) => current.map((row) => (row.id === updated.id ? updated : row)))
-    setSelectedAlert((current) => (current?.id === updated.id ? updated : current))
-  }, [])
-
-  const resolveAlert = useCallback(async (alert: AlertRecord) => {
-    let previous: AlertRecord[] = []
-    setAlerts((current) => {
-      previous = current
-      return current.map((row) => (row.id === alert.id ? { ...row, is_resolved: true } : row))
-    })
+  // Dismiss single alert
+  async function handleDismiss(alertId: number) {
+    setDismissingId(alertId)
+    setActionMessage("")
+    setActionError("")
     try {
-      const updated = await api.resolveAlert(alert.id)
-      replaceAlert(updated)
-      setMessage(`Alert #${alert.id} resolved.`)
-    } catch (err) {
-      setAlerts(previous)
-      setMessage(err instanceof Error ? err.message : "Unable to resolve alert.")
-    }
-  }, [replaceAlert])
-
-  const acknowledgeAlert = useCallback(async (alert: AlertRecord) => {
-    try {
-      const updated = await api.acknowledgeAlert(alert.id)
-      replaceAlert(updated)
-      setMessage(`Alert #${alert.id} acknowledged.`)
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Unable to acknowledge alert.")
-    }
-  }, [replaceAlert])
-
-  async function loadAssignableUsers(preferredAssignee?: string) {
-    setAssignUsersLoading(true)
-    setAssignError("")
-    try {
-      const users = await api.users()
-      const activeUsers = users.filter((user) => user.is_active !== false)
-      const preferred =
-        activeUsers.find((user) => user.username === preferredAssignee)?.username ||
-        activeUsers.find((user) => ["analyst", "data_analyst", "data_engineer"].includes(String(user.role)))?.username ||
-        activeUsers[0]?.username ||
-        ""
-      setAssignUsers(users)
-      setSelectedAssignee(preferred)
-    } catch (err) {
-      setAssignError(
-        err instanceof Error
-          ? err.message
-          : "Unable to load users. Admin access is required to retrieve dashboard users."
+      await api.resolveAlert(alertId)
+      setAlerts((current) =>
+        current.map((row) => (row.id === alertId ? { ...row, is_resolved: true } : row))
       )
+      setActionMessage(`Notification #${alertId} dismissed.`)
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Unable to dismiss notification.")
     } finally {
-      setAssignUsersLoading(false)
+      setDismissingId(null)
     }
   }
 
-  const openAssignDialog = useCallback((alert: AlertRecord) => {
-    setAssignAlertTarget(alert)
-    setSelectedAssignee(alert.assigned_to || "")
-    setAssignDialogOpen(true)
-    loadAssignableUsers(alert.assigned_to)
-  }, [])
-
-  const submitAssignAlert = useCallback(async () => {
-    if (!assignAlertTarget || !selectedAssignee) return
-    setAssignSaving(true)
-    setAssignError("")
+  // Dismiss all active alerts
+  async function handleDismissAll() {
+    if (!openAlerts.length) return
+    setDismissingAll(true)
+    setActionMessage("Dismissing all active notifications...")
+    setActionError("")
     try {
-      const updated = await api.assignAlert(assignAlertTarget.id, selectedAssignee)
-      replaceAlert(updated)
-      setMessage(`Alert #${assignAlertTarget.id} assigned to ${updated.assigned_to || selectedAssignee}.`)
-      setAssignDialogOpen(false)
+      for (const alert of openAlerts) {
+        try {
+          await api.resolveAlert(alert.id)
+        } catch {
+          // continue
+        }
+      }
+      await loadAlerts()
+      setActionMessage("All active notifications have been dismissed.")
     } catch (err) {
-      setAssignError(err instanceof Error ? err.message : "Unable to assign alert.")
+      setActionError(err instanceof Error ? err.message : "Unable to dismiss all notifications.")
     } finally {
-      setAssignSaving(false)
+      setDismissingAll(false)
     }
-  }, [assignAlertTarget, replaceAlert, selectedAssignee])
+  }
 
-  const escalateAlert = useCallback(async (alert: AlertRecord) => {
-    try {
-      const updated = await api.escalateAlert(alert.id)
-      replaceAlert(updated)
-      setMessage(`Alert #${alert.id} escalated.`)
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Unable to escalate alert.")
-    }
-  }, [replaceAlert])
+  // Filtered notifications
+  const filteredAlerts = useMemo(() => {
+    return alerts.filter((alert) => {
+      // Search filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase()
+        const matchesMsg = alert.message?.toLowerCase().includes(q)
+        const matchesType = alert.alert_type?.toLowerCase().includes(q)
+        const matchesId = String(alert.id).includes(q)
+        if (!matchesMsg && !matchesType && !matchesId) return false
+      }
 
-  const columns = useMemo<ColumnDef<AlertRecord>[]>(
-    () => [
-      {
-        accessorKey: "id",
-        header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
-      },
-      {
-        accessorKey: "severity",
-        header: ({ column }) => <DataTableColumnHeader column={column} title="Severity" />,
-        cell: ({ row }) => <SeverityBadge severity={row.original.severity} />,
-      },
-      {
-        accessorKey: "message",
-        header: "Message",
-        cell: ({ row }) => <span className="block max-w-xl whitespace-normal">{row.original.message}</span>,
-      },
-      { accessorKey: "owner_team", header: "Owner Team" },
-      { accessorKey: "assigned_to", header: "Assigned To" },
-      {
-        id: "status",
-        header: "Status",
-        cell: ({ row }) => <StatusBadge status={alertStatus(row.original)} />,
-      },
-      {
-        accessorKey: "created_at",
-        header: ({ column }) => <DataTableColumnHeader column={column} title="Created" />,
-        cell: ({ row }) => formatDateTime(row.original.created_at),
-      },
-      {
-        id: "actions",
-        header: "Actions",
-        cell: ({ row }) =>
-          row.original.is_resolved ? null : (
-            <Button size="sm" onClick={() => resolveAlert(row.original)}>
-              Resolve
-            </Button>
-          ),
-      },
-    ],
-    [resolveAlert]
-  )
+      // Severity filter
+      if (severityFilter !== "ALL" && alert.severity !== severityFilter) {
+        return false
+      }
+
+      // Status filter
+      if (statusFilter === "ACTIVE" && alert.is_resolved) return false
+      if (statusFilter === "RESOLVED" && !alert.is_resolved) return false
+
+      return true
+    })
+  }, [alerts, searchQuery, severityFilter, statusFilter])
 
   return (
     <AppShell>
       <PageHeader
         eyebrow="Operations"
-        title="Alert Operations"
-        subtitle="Triage, assign, escalate, and resolve data quality incidents from one operational console."
+        title="Run Notification History"
+        subtitle="Review event logs, failure triggers, and operational notifications from data quality checks."
         onRefresh={loadAlerts}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDismissAll}
+              disabled={dismissingAll || !openAlerts.length}
+              className="border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.08] hover:text-white text-xs h-8"
+            >
+              {dismissingAll ? (
+                <Loader2 className="size-3.5 animate-spin text-[#B3FF4C]" />
+              ) : (
+                <Check className="size-3.5 text-[#B3FF4C]" />
+              )}
+              {dismissingAll ? "Dismissing..." : `Dismiss All Active (${openAlerts.length})`}
+            </Button>
+            <Link href="/remediation">
+              <Button
+                size="sm"
+                className="bg-[#B3FF4C] text-black font-semibold hover:bg-[#a3f03b] transition text-xs h-8"
+              >
+                <Wrench className="size-3.5" />
+                Go to Remediation Center
+              </Button>
+            </Link>
+          </div>
+        }
       />
 
-      {message ? (
-        <Card className="rounded-md border-[#B3FF4C]/30 bg-[#B3FF4C]/10">
-          <CardContent className="p-3 text-xs text-[#B3FF4C]">{message}</CardContent>
+      {/* KPI Summary Cards */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <div className="text-xs font-medium text-zinc-400">Total Notifications</div>
+              <div className="mt-1 text-2xl font-bold text-white">{alerts.length}</div>
+            </div>
+            <div className="flex size-9 items-center justify-center rounded-md bg-white/[0.04] text-zinc-300">
+              <BellRing className="size-4" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <div className="text-xs font-medium text-zinc-400">Active / Unresolved</div>
+              <div className="mt-1 text-2xl font-bold text-amber-400">{openAlerts.length}</div>
+            </div>
+            <div className="flex size-9 items-center justify-center rounded-md bg-amber-500/10 text-amber-400">
+              <AlertTriangle className="size-4" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <div className="text-xs font-medium text-zinc-400">Critical Triggers</div>
+              <div className="mt-1 text-2xl font-bold text-rose-400">{criticalAlerts.length}</div>
+            </div>
+            <div className="flex size-9 items-center justify-center rounded-md bg-rose-500/10 text-rose-400">
+              <Flame className="size-4" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <div className="text-xs font-medium text-zinc-400">Latest Trigger</div>
+              <div className="mt-1 text-sm font-semibold text-white">
+                {latestAlertTime ? formatDateTime(latestAlertTime) : "No runs yet"}
+              </div>
+            </div>
+            <div className="flex size-9 items-center justify-center rounded-md bg-white/[0.04] text-[#B3FF4C]">
+              <Clock className="size-4" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Notifications / Feedback banner */}
+      {actionMessage ? (
+        <Card className="rounded-md border border-[#B3FF4C]/30 bg-[#B3FF4C]/10 text-[#B3FF4C]">
+          <CardContent className="p-3 text-xs font-medium flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="size-4 shrink-0 text-[#B3FF4C]" />
+              <span>{actionMessage}</span>
+            </div>
+            <button onClick={() => setActionMessage("")} className="text-xs hover:underline cursor-pointer">
+              Dismiss
+            </button>
+          </CardContent>
         </Card>
       ) : null}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <EnterpriseMetricCard title="Total Alerts" value={alerts.length} description="All recorded alerts" icon={BellRing} tone="blue" />
-        <EnterpriseMetricCard title="Open Alerts" value={openAlerts.length} description="Needs triage" icon={AlertTriangle} tone="amber" />
-        <EnterpriseMetricCard title="Critical Alerts" value={criticalAlerts.length} description="High priority" icon={ShieldAlert} tone="red" />
-        <EnterpriseMetricCard title="Resolved Alerts" value={resolvedAlerts.length} description="Closed incidents" icon={CheckCircle2} tone="green" />
-      </div>
-
-      <AlertFiltersPanel value={filters} onChange={setFilters} />
-
-      <Tabs defaultValue="triage">
-        <TabsList className="flex flex-wrap">
-          <TabsTrigger value="triage">Triage Board</TabsTrigger>
-          <TabsTrigger value="critical">Critical</TabsTrigger>
-          <TabsTrigger value="assigned">Assigned to Me</TabsTrigger>
-          <TabsTrigger value="sla">SLA Breaches</TabsTrigger>
-          <TabsTrigger value="escalated">Escalated</TabsTrigger>
-          <TabsTrigger value="resolved">Resolved</TabsTrigger>
-          <TabsTrigger value="all">All Alerts</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="triage" className="mt-5">
-          <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
-            <div className="grid gap-4">
-              {openAlerts.slice(0, 8).map((alert) => (
-                <div
-                  className="cursor-pointer text-left"
-                  key={alert.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setSelectedAlert(alert)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault()
-                      setSelectedAlert(alert)
-                    }
-                  }}
-                >
-                  <AlertCard
-                    alert={alert}
-                    onResolve={resolveAlert}
-                    onAcknowledge={acknowledgeAlert}
-                    onAssign={canAssignAlerts ? openAssignDialog : undefined}
-                    onEscalate={escalateAlert}
-                  />
-                </div>
-              ))}
+      {actionError ? (
+        <Card className="rounded-md border border-rose-500/30 bg-rose-500/10 text-rose-400">
+          <CardContent className="p-3 text-xs font-medium flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="size-4 shrink-0 text-rose-400" />
+              <span>{actionError}</span>
             </div>
-            <AlertTimeline alert={selectedAlert ?? openAlerts[0]} />
-          </div>
-        </TabsContent>
+            <button onClick={() => setActionError("")} className="text-xs hover:underline cursor-pointer">
+              Dismiss
+            </button>
+          </CardContent>
+        </Card>
+      ) : null}
 
-        <TabsContent value="critical" className="mt-5">
-          <div className="grid gap-4">
-            {criticalAlerts.map((alert) => (
-              <AlertCard
-                key={alert.id}
-                alert={alert}
-                onResolve={resolveAlert}
-                onAcknowledge={acknowledgeAlert}
-                onAssign={canAssignAlerts ? openAssignDialog : undefined}
-                onEscalate={escalateAlert}
+      {/* Filter and Search Bar */}
+      <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            {/* Search Input */}
+            <div className="relative w-full lg:w-80">
+              <Search className="absolute left-3 top-2.5 size-3.5 text-zinc-500" />
+              <Input
+                type="text"
+                placeholder="Search notification messages..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 h-8 text-xs border-white/10 bg-white/[0.02] text-white placeholder:text-zinc-500 focus-visible:ring-1 focus-visible:ring-[#B3FF4C]"
               />
-            ))}
+            </div>
+
+            {/* Severity and Status Filter Buttons */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Status Filters */}
+              <div className="flex rounded-md border border-white/10 bg-black/40 p-0.5 text-xs">
+                {(["ALL", "ACTIVE", "RESOLVED"] as const).map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setStatusFilter(s)}
+                    className={`rounded px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
+                      statusFilter === s
+                        ? "bg-[#B3FF4C] text-black font-semibold"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    {s === "ALL" ? "All Status" : s === "ACTIVE" ? `Active (${openAlerts.length})` : "Dismissed"}
+                  </button>
+                ))}
+              </div>
+
+              {/* Severity Filters */}
+              <div className="flex rounded-md border border-white/10 bg-black/40 p-0.5 text-xs">
+                {["ALL", "CRITICAL", "HIGH", "MEDIUM", "LOW"].map((sev) => (
+                  <button
+                    key={sev}
+                    type="button"
+                    onClick={() => setSeverityFilter(sev)}
+                    className={`rounded px-2 py-1 text-xs font-medium transition cursor-pointer ${
+                      severityFilter === sev
+                        ? "bg-white/20 text-white font-semibold"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    {sev === "ALL" ? "All Severity" : sev}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </TabsContent>
-        <TabsContent value="assigned" className="mt-5">
-          <EnterpriseDataTable columns={columns} data={filteredAlerts.filter((alert) => Boolean(alert.assigned_to))} loading={loading} />
-        </TabsContent>
-        <TabsContent value="sla" className="mt-5">
-          <EnterpriseDataTable columns={columns} data={filteredAlerts.filter((alert) => String(alert.message ?? "").toLowerCase().includes("sla"))} loading={loading} />
-        </TabsContent>
-        <TabsContent value="escalated" className="mt-5">
-          <EnterpriseDataTable columns={columns} data={escalatedAlerts} loading={loading} />
-        </TabsContent>
-        <TabsContent value="resolved" className="mt-5">
-          <EnterpriseDataTable columns={columns} data={resolvedAlerts} loading={loading} />
-        </TabsContent>
-        <TabsContent value="all" className="mt-5">
-          <EnterpriseDataTable columns={columns} data={filteredAlerts} loading={loading} />
-        </TabsContent>
-      </Tabs>
-      <AlertAssignDialog
-        alert={assignAlertTarget}
-        users={assignUsers}
-        open={assignDialogOpen}
-        loading={assignUsersLoading}
-        saving={assignSaving}
-        selectedUsername={selectedAssignee}
-        error={assignError}
-        onOpenChange={setAssignDialogOpen}
-        onSelectedUsernameChange={setSelectedAssignee}
-        onAssign={submitAssignAlert}
-      />
+        </CardContent>
+      </Card>
+
+      {/* Notifications Feed */}
+      {loading ? (
+        <div className="rounded-md border border-white/[0.08] bg-[#141414] p-12 text-center text-zinc-400">
+          <Loader2 className="mx-auto size-6 animate-spin text-[#B3FF4C]" />
+          <div className="mt-2 text-xs">Loading notifications...</div>
+        </div>
+      ) : !filteredAlerts.length ? (
+        <div className="rounded-md border border-white/[0.08] bg-[#141414] p-12 text-center">
+          <BellRing className="mx-auto size-8 text-zinc-500" />
+          <div className="mt-3 text-sm font-semibold text-white">No notifications found</div>
+          <p className="mt-1 text-xs text-zinc-400">
+            {searchQuery || severityFilter !== "ALL" || statusFilter !== "ALL"
+              ? "Try clearing your filters or search query."
+              : "No check failures or notifications have been logged yet."}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2.5">
+          {filteredAlerts.map((alert) => {
+            const isDismissing = dismissingId === alert.id
+            const isResolved = alert.is_resolved
+            const sev = (alert.severity || "LOW").toUpperCase()
+
+            return (
+              <div
+                key={alert.id}
+                className={`rounded-md border p-3.5 transition flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                  isResolved
+                    ? "border-white/[0.04] bg-white/[0.01] opacity-70"
+                    : "border-white/[0.08] bg-[#141414] hover:border-white/20"
+                }`}
+              >
+                {/* Left: Icon + Content */}
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md border ${
+                      sev === "CRITICAL"
+                        ? "border-rose-500/30 bg-rose-500/10 text-rose-400"
+                        : sev === "HIGH"
+                        ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                        : sev === "MEDIUM"
+                        ? "border-yellow-500/30 bg-yellow-500/10 text-yellow-400"
+                        : "border-blue-500/30 bg-blue-500/10 text-blue-400"
+                    }`}
+                  >
+                    {sev === "CRITICAL" ? (
+                      <Flame className="size-4" />
+                    ) : sev === "HIGH" ? (
+                      <AlertTriangle className="size-4" />
+                    ) : sev === "MEDIUM" ? (
+                      <BellRing className="size-4" />
+                    ) : (
+                      <Info className="size-4" />
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-xs text-white">
+                        Notification #{alert.id}
+                      </span>
+                      <SeverityBadge severity={alert.severity} />
+                      <StatusBadge status={isResolved ? "RESOLVED" : "ACTIVE"} />
+                      <span className="text-[11px] text-zinc-500">
+                        {formatDateTime(alert.created_at)}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-zinc-300 leading-relaxed max-w-4xl">
+                      {alert.message}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right: Actions */}
+                <div className="flex items-center gap-2 md:shrink-0 self-end md:self-center">
+                  <Link href="/remediation">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 px-2.5 text-xs text-zinc-400 hover:text-[#B3FF4C] hover:bg-white/[0.04]"
+                    >
+                      <Wrench className="size-3 text-zinc-400" />
+                      Fix in Remediation
+                    </Button>
+                  </Link>
+
+                  {!isResolved ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={isDismissing}
+                      onClick={() => handleDismiss(alert.id)}
+                      className="h-7 px-2.5 text-xs border-white/10 text-zinc-300 hover:border-white/20 hover:text-white"
+                    >
+                      {isDismissing ? (
+                        <Loader2 className="size-3 animate-spin" />
+                      ) : (
+                        <Check className="size-3 text-[#B3FF4C]" />
+                      )}
+                      Dismiss
+                    </Button>
+                  ) : (
+                    <span className="text-[11px] text-zinc-500 italic px-2">Dismissed</span>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </AppShell>
   )
 }

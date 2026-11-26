@@ -41,7 +41,6 @@ const groups = [
     label: "Operations",
     items: [
       { href: "/remediation", label: "Data Remediation Center", icon: Wrench },
-      { href: "/alerts", label: "Alert Operations", icon: BellRing },
     ],
   },
   {

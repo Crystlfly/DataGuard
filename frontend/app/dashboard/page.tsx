@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { AlertTriangle, BellRing, Database, Gauge, ListChecks, ShieldCheck } from "lucide-react"
+import { AlertTriangle, Database, Gauge, ListChecks, ShieldCheck, Wrench } from "lucide-react"
 
 import { FailedChecksChart } from "@/components/charts/failed-checks-chart"
 import { QualityTrendChart } from "@/components/charts/quality-trend-chart"
@@ -17,7 +17,7 @@ import { StatusBadge } from "@/components/ui-custom/status-badge"
 import { EmptyState } from "@/components/ui-custom/empty-state"
 import { api } from "@/lib/api-client"
 import { formatDateTime, formatNumber, formatPercent } from "@/lib/formatters"
-import type { AlertRecord, CheckResult, RunSummary, SlaResult } from "@/lib/types"
+import type { CheckResult, RunSummary, SlaResult } from "@/lib/types"
 
 function countBy<T>(rows: T[], getter: (row: T) => string | undefined) {
   const counts = new Map<string, number>()
@@ -32,7 +32,6 @@ export default function DashboardPage() {
   const [runs, setRuns] = useState<RunSummary[]>([])
   const [latestRun, setLatestRun] = useState<RunSummary | null>(null)
   const [results, setResults] = useState<CheckResult[]>([])
-  const [alerts, setAlerts] = useState<AlertRecord[]>([])
   const [sla, setSla] = useState<SlaResult[]>([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState("")
@@ -42,15 +41,13 @@ export default function DashboardPage() {
     setLoading(true)
     setMessage("")
     try {
-      const [runRows, latest, alertRows, slaRows] = await Promise.all([
+      const [runRows, latest, slaRows] = await Promise.all([
         api.runs(),
         api.latestRun().catch(() => null),
-        api.alerts(false).catch(() => []),
         api.sla().catch(() => []),
       ])
       setRuns(runRows)
       setLatestRun(latest)
-      setAlerts(alertRows)
       setSla(slaRows)
       setResults(latest?.run_id ? await api.results(latest.run_id).catch(() => []) : [])
       setLastRefreshed(formatDateTime(new Date()))
@@ -85,7 +82,7 @@ export default function DashboardPage() {
   }, [failedResults])
 
   const degradedDatasets = failedByDataset.slice(0, 5)
-  const alertsBySeverity = countBy(alerts, (row) => row.severity)
+  const failuresBySeverity = countBy(failedResults, (row) => row.severity)
   const slaDistribution = countBy(sla, (row) => row.sla_status)
 
   async function runChecks() {
@@ -104,7 +101,7 @@ export default function DashboardPage() {
       <PageHeader
         eyebrow="Command Center"
         title="Executive Dashboard"
-        subtitle="Management-ready view of quality score, SLA posture, open alerts, and datasets requiring action."
+        subtitle="Management-ready view of quality score, SLA posture, and datasets requiring action."
         onRefresh={loadDashboard}
         actions={
           <div className="flex items-center gap-2">
@@ -150,9 +147,27 @@ export default function DashboardPage() {
           icon={ShieldCheck}
           tone="green"
         />
-        <EnterpriseMetricCard title="Open Alerts" value={alerts.length} description="Unresolved" icon={BellRing} tone="amber" />
-        <EnterpriseMetricCard title="Critical Issues" value={criticalResults.length} description="Highest priority" icon={AlertTriangle} tone="red" />
-        <EnterpriseMetricCard title="Datasets Monitored" value={datasets.size} description="In latest run" icon={Database} tone="slate" />
+        <EnterpriseMetricCard
+          title="Failed Checks"
+          value={failedResults.length}
+          description="Requires remediation"
+          icon={Wrench}
+          tone="amber"
+        />
+        <EnterpriseMetricCard
+          title="Critical Issues"
+          value={criticalResults.length}
+          description="Highest priority"
+          icon={AlertTriangle}
+          tone="red"
+        />
+        <EnterpriseMetricCard
+          title="Datasets Monitored"
+          value={datasets.size}
+          description="In latest run"
+          icon={Database}
+          tone="slate"
+        />
         <EnterpriseMetricCard
           title="Latest Run Status"
           value={latestRun?.overall_status ?? "-"}
@@ -180,8 +195,12 @@ export default function DashboardPage() {
           </div>
           <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
             <div className="text-xs font-medium text-zinc-400">Operational Posture</div>
-            <div className="mt-1 text-base font-semibold text-white">{alerts.length ? "Action Required" : "Stable"}</div>
-            <p className="mt-0.5 text-xs text-zinc-400">{alerts.length} open alerts in queue</p>
+            <div className="mt-1 text-base font-semibold text-white">
+              {failedResults.length ? "Action Required" : "Clean & Stable"}
+            </div>
+            <p className="mt-0.5 text-xs text-zinc-400">
+              {failedResults.length} defects in remediation checklist
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -189,15 +208,30 @@ export default function DashboardPage() {
       <div className="grid gap-3.5 xl:grid-cols-2">
         <QualityTrendChart data={trendData} />
         <FailedChecksChart data={failedByDataset} />
-        <SeverityDistributionChart data={alertsBySeverity} />
-        <SeverityDistributionChart data={slaDistribution} title="SLA Status Distribution" description="Dataset SLA outcomes." />
+        <SeverityDistributionChart
+          data={failuresBySeverity}
+          title="Defects by Severity"
+          description="Failed check breakdown by urgency."
+        />
+        <SeverityDistributionChart
+          data={slaDistribution}
+          title="SLA Status Distribution"
+          description="Dataset SLA outcomes."
+        />
       </div>
 
-      <div className="grid gap-3.5 xl:grid-cols-3">
+      <div className="grid gap-3.5 xl:grid-cols-2">
         <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
-          <CardHeader>
-            <CardTitle className="text-white">Recently Degraded Datasets</CardTitle>
-            <CardDescription className="text-zinc-400">Datasets with failed checks in the latest run.</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-white">Recently Degraded Datasets</CardTitle>
+              <CardDescription className="text-zinc-400">Datasets with failed checks in the latest run.</CardDescription>
+            </div>
+            <Link href="/remediation">
+              <Button variant="ghost" size="sm" className="text-xs text-[#B3FF4C] hover:bg-white/[0.04]">
+                Remediate Issues &rarr;
+              </Button>
+            </Link>
           </CardHeader>
           <CardContent className="space-y-2">
             {degradedDatasets.length ? degradedDatasets.map((row) => (
@@ -210,9 +244,16 @@ export default function DashboardPage() {
         </Card>
 
         <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
-          <CardHeader>
-            <CardTitle className="text-white">Critical Issues Requiring Action</CardTitle>
-            <CardDescription className="text-zinc-400">Highest severity quality failures.</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-white">Critical Issues Requiring Action</CardTitle>
+              <CardDescription className="text-zinc-400">Highest severity quality failures.</CardDescription>
+            </div>
+            <Link href="/remediation">
+              <Button variant="ghost" size="sm" className="text-xs text-rose-400 hover:bg-white/[0.04]">
+                Open Checklist &rarr;
+              </Button>
+            </Link>
           </CardHeader>
           <CardContent className="space-y-2">
             {criticalResults.slice(0, 5).map((row, index) => (
@@ -227,27 +268,7 @@ export default function DashboardPage() {
             {!criticalResults.length ? <EmptyState title="No critical issues" description="Critical severity failures will appear here." /> : null}
           </CardContent>
         </Card>
-
-        <Card className="rounded-md border border-white/[0.08] bg-[#141414]">
-          <CardHeader>
-            <CardTitle className="text-white">Latest Open Alerts</CardTitle>
-            <CardDescription className="text-zinc-400">Operational follow-up queue.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {alerts.slice(0, 5).map((alert) => (
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 hover:bg-white/[0.04] transition" key={alert.id}>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-medium text-white">Alert #{alert.id}</span>
-                  <SeverityBadge severity={alert.severity} />
-                </div>
-                <p className="mt-0.5 line-clamp-2 text-[0.72rem] text-zinc-400">{alert.message}</p>
-              </div>
-            ))}
-            {!alerts.length ? <EmptyState title="No open alerts" description="Unresolved alerts will appear here." /> : null}
-          </CardContent>
-        </Card>
       </div>
     </AppShell>
   )
 }
-
