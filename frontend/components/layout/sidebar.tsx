@@ -16,7 +16,6 @@ import {
   SearchCheck,
   Send,
   Settings,
-  ShieldCheck,
   SlidersHorizontal,
   Wrench,
   Target,
@@ -70,7 +69,6 @@ const groups = [
     items: [
       { href: "/admin/notifications", label: "Notification Center", icon: Send },
       { href: "/admin/audit-logs", label: "Audit Logs", icon: ScrollText },
-      { href: "/admin", label: "System Health", icon: ShieldCheck },
     ],
   },
 ]
