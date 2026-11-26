@@ -11,6 +11,17 @@ export type RunSummary = {
 
 export type DataQualityRun = RunSummary
 
+export type SchedulerConfig = {
+  database_name: string
+  enabled: boolean
+  interval_minutes: number
+  last_run_time?: string | null
+  next_run_time?: string | null
+  last_run_status?: string | null
+  last_run_id?: number | null
+  is_running?: boolean
+}
+
 export type CheckResult = {
   id?: number
   run_id?: number

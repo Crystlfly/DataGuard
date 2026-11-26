@@ -7,6 +7,7 @@ import { AlertTriangle, CheckCircle2, Database, Gauge, ListChecks, SlidersHorizo
 import { FailedChecksChart } from "@/components/charts/failed-checks-chart"
 import { QualityTrendChart } from "@/components/charts/quality-trend-chart"
 import { SeverityDistributionChart } from "@/components/charts/severity-distribution-chart"
+import { ScheduledChecksCard } from "@/components/dashboard/scheduled-checks-card"
 import { AppShell } from "@/components/app-shell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -140,6 +141,8 @@ export default function DashboardPage() {
           <CardContent className="p-3 text-xs font-medium">{message}</CardContent>
         </Card>
       ) : null}
+
+      <ScheduledChecksCard onRunTriggered={loadDashboard} />
 
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
         <EnterpriseMetricCard

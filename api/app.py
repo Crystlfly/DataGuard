@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request, 
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -39,6 +40,24 @@ app = FastAPI(
     version="1.0.0",
     description="Enterprise API for monitoring runs, results, alerts, SLA, and lineage.",
 )
+
+
+@app.on_event("startup")
+def startup_event():
+    try:
+        from services.scheduler_service import start_scheduler
+        start_scheduler()
+    except Exception:
+        logger.exception("Failed to initialize background scheduler on startup.")
+
+
+@app.on_event("shutdown")
+def shutdown_event():
+    try:
+        from services.scheduler_service import stop_scheduler
+        stop_scheduler()
+    except Exception:
+        logger.exception("Error stopping background scheduler.")
 
 raw_frontend_url = get_env("FRONTEND_URL", default="http://localhost:3000")
 allowed_origins = [origin.strip() for origin in str(raw_frontend_url).split(",") if origin.strip()]
@@ -836,6 +855,39 @@ def run_checks_now(request: Request) -> dict[str, Any]:
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=result)
 
     return result
+
+
+class ScheduleUpdateRequest(BaseModel):
+    enabled: bool
+    interval_minutes: int = Field(60, ge=1, le=10080)
+
+
+@api_v1.get("/scheduler")
+def get_scheduler_status() -> dict[str, Any]:
+    """Get the current background scheduler status and configuration."""
+    from services.scheduler_service import get_schedule_config
+    db_name = _active_database()
+    return get_schedule_config(db_name)
+
+
+@api_v1.post("/scheduler")
+def update_scheduler_settings(payload: ScheduleUpdateRequest) -> dict[str, Any]:
+    """Update background schedule settings (frequency, enabled state)."""
+    from services.scheduler_service import update_schedule_config
+    db_name = _active_database()
+    return update_schedule_config(
+        database_name=db_name,
+        enabled=payload.enabled,
+        interval_minutes=payload.interval_minutes,
+    )
+
+
+@api_v1.post("/scheduler/run-now")
+def trigger_immediate_scheduled_run() -> dict[str, Any]:
+    """Trigger a scheduled run immediately in background."""
+    from services.scheduler_service import execute_scheduled_run
+    db_name = _active_database()
+    return execute_scheduled_run(db_name)
 
 
 app.include_router(remediation_router)

@@ -24,6 +24,7 @@ import type {
   ProfileUpdateRequest,
   RuleCatalogRow,
   RunSummary,
+  SchedulerConfig,
   SlaResult,
   UpdateUserPayload,
 } from "@/lib/types"
@@ -250,6 +251,16 @@ export const api = {
     requestJson<DatabaseTestResponse>("/api/v1/database/connect", {
       method: "POST",
       body: JSON.stringify(payload),
+    }),
+  scheduler: () => requestJson<SchedulerConfig>("/api/v1/scheduler"),
+  updateScheduler: (payload: { enabled: boolean; interval_minutes: number }) =>
+    requestJson<SchedulerConfig>("/api/v1/scheduler", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  triggerScheduledRun: () =>
+    requestJson<{ status: string; run_id: number; completed_at: string }>("/api/v1/scheduler/run-now", {
+      method: "POST",
     }),
 }
 

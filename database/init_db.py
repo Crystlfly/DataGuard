@@ -454,6 +454,19 @@ CREATE_TABLE_STATEMENTS = [
     CREATE INDEX IF NOT EXISTS idx_data_quality_rules_db_table 
     ON data_quality_rules (database_name, table_name)
     """,
+    """
+    CREATE TABLE IF NOT EXISTS data_quality_scheduled_checks (
+        id SERIAL PRIMARY KEY,
+        database_name VARCHAR(100) UNIQUE NOT NULL,
+        enabled BOOLEAN DEFAULT FALSE,
+        interval_minutes INT DEFAULT 60,
+        last_run_time TIMESTAMP,
+        next_run_time TIMESTAMP,
+        last_run_status VARCHAR(50),
+        last_run_id INT,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """,
 ]
 
 
