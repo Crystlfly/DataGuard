@@ -21,6 +21,7 @@ from services.data_cleaning_service import (
     suggest_cleaning_actions,
     update_issue_status,
     verify_cleaning_job,
+    verify_individual_issue,
 )
 from utils.audit_logger import log_audit_event
 from utils.logger import get_logger
@@ -278,6 +279,19 @@ def patch_issue_status(
             resolution_type=payload.get("resolution_type"),
             role=identity["role"],
         )
+    except Exception as exc:
+        raise _friendly_error(exc)
+
+
+@router.post("/issues/{issue_id}/verify")
+def verify_issue_endpoint(
+    issue_id: int,
+    identity: dict[str, str] = Depends(_identity),
+) -> dict[str, Any]:
+    """Verify if a specific issue has been fixed in the live source database."""
+
+    try:
+        return verify_individual_issue(issue_id, updated_by=identity.get("username", "user"))
     except Exception as exc:
         raise _friendly_error(exc)
 

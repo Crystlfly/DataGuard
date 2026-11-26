@@ -157,7 +157,8 @@ export const api = {
   rules: () => requestJson<RuleCatalogRow[]>("/api/v1/rules"),
   auditLogs: () => requestJson<AuditLog[]>("/api/v1/audit-logs?limit=500"),
   runChecks: () => requestJson<CheckRunResponse>("/api/v1/checks/run", { method: "POST" }),
-  cleanableIssues: () => requestJson<CleanableIssue[]>("/api/v1/issues/cleanable"),
+  cleanableIssues: (runId?: number) =>
+    requestJson<CleanableIssue[]>(runId ? `/api/v1/issues/cleanable?run_id=${runId}` : "/api/v1/issues/cleanable"),
   cleaningSuggestions: (issueId: number) =>
     requestJson<{ issue_id: number; suggestions: CleaningSuggestion[] }>(`/api/v1/issues/${issueId}/suggestions`),
   previewCleaning: (payload: CleaningPayload) =>
@@ -180,6 +181,11 @@ export const api = {
     requestJson<CleaningJob>(`/api/v1/cleaning/jobs/${jobId}/rollback`, { method: "POST" }),
   verifyCleaningJob: (jobId: number) =>
     requestJson<Record<string, unknown>>(`/api/v1/cleaning/jobs/${jobId}/verify`, { method: "POST" }),
+  verifyIssue: (issueId: number) =>
+    requestJson<{ fixed: boolean; current_value?: string | null; message: string }>(
+      `/api/v1/issues/${issueId}/verify`,
+      { method: "POST" }
+    ),
   updateIssueStatus: (issueId: number, payload: Record<string, unknown>) =>
     requestJson<Record<string, unknown>>(`/api/v1/issues/${issueId}/status`, {
       method: "PATCH",

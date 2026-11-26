@@ -1131,3 +1131,155 @@ def _loads_json_list(value: Any) -> list[dict[str, Any]]:
         return [item for item in loaded if isinstance(item, dict)] if isinstance(loaded, list) else []
     except json.JSONDecodeError:
         return []
+
+
+def verify_individual_issue(issue_id: int, updated_by: str = "user") -> dict[str, Any]:
+    """Verify if a specific issue has been fixed in the live source database."""
+
+    issue = _get_issue(issue_id)
+    dataset_name = issue["dataset_name"]
+    column_name = issue["column_name"]
+    check_type = issue["check_type"]
+    row_identifier = issue.get("row_identifier") or ""
+    predicates = parse_row_identifier(row_identifier)
+
+    source_engine = create_source_engine()
+    with source_engine.connect() as conn:
+        where_parts = []
+        params = {}
+        for idx, (col, val) in enumerate(predicates.items()):
+            param_key = f"p_{idx}"
+            where_parts.append(f'"{col}" = :{param_key}')
+            params[param_key] = val
+        where_clause = " AND ".join(where_parts)
+
+        # 1. Fetch current row
+        query = text(f'SELECT "{column_name}" FROM "{dataset_name}" WHERE {where_clause}')
+        row = conn.execute(query, params).fetchone()
+
+        if row is None:
+            update_issue_status(
+                issue_id=issue_id,
+                status="RESOLVED",
+                updated_by=updated_by,
+                notes=f"Row ({row_identifier}) was removed from {dataset_name}. Issue resolved.",
+                resolution_type="ROW_DELETED",
+            )
+            return {
+                "fixed": True,
+                "current_value": None,
+                "message": f"Row {row_identifier} was deleted from {dataset_name}. Verified fixed!",
+            }
+
+        current_value = row[0]
+        is_fixed = False
+        message = ""
+
+        # 2. Evaluate check rule
+        if check_type == "not_null_check":
+            if current_value is not None and str(current_value).strip() != "" and str(current_value).strip().upper() != "NULL":
+                is_fixed = True
+                message = f"Column '{column_name}' is now populated with '{current_value}'."
+            else:
+                message = f"Column '{column_name}' is still NULL or empty."
+
+        elif check_type in ("range_check", "z_score_anomaly_check"):
+            try:
+                numeric_val = float(current_value)
+                if "minimum length" in issue.get("reason", "").lower():
+                    if len(str(current_value).strip()) >= 2:
+                        is_fixed = True
+                        message = f"Length of '{column_name}' is now valid ({len(str(current_value))} chars: '{current_value}')."
+                    else:
+                        message = f"Length of '{column_name}' is still too short ('{current_value}')."
+                elif column_name in ("price", "in_stock", "amount") and numeric_val >= 0:
+                    is_fixed = True
+                    message = f"Value for '{column_name}' is now non-negative ({current_value})."
+                elif check_type == "z_score_anomaly_check":
+                    check_ref = conn.execute(text("SELECT count(*) FROM users WHERE id = :uid"), {"uid": str(int(numeric_val))}).scalar()
+                    if check_ref and check_ref > 0 and numeric_val < 500:
+                        is_fixed = True
+                        message = f"User ID is now valid ({current_value})."
+                    else:
+                        message = f"User ID '{current_value}' is still an outlier / invalid."
+                else:
+                    if numeric_val >= 0:
+                        is_fixed = True
+                        message = f"Value for '{column_name}' is now valid ({current_value})."
+                    else:
+                        message = f"Value '{current_value}' is still negative."
+            except (ValueError, TypeError):
+                if len(str(current_value).strip()) >= 2:
+                    is_fixed = True
+                    message = f"'{column_name}' is now valid ('{current_value}')."
+                else:
+                    message = f"'{column_name}' value '{current_value}' is still invalid."
+
+        elif check_type == "format_check":
+            val_str = str(current_value or "").strip()
+            if column_name == "email":
+                if "@" in val_str and "." in val_str.split("@")[-1] and len(val_str) > 5:
+                    is_fixed = True
+                    message = f"Email format is now valid: '{current_value}'."
+                else:
+                    message = f"Email format '{current_value}' is still invalid."
+            else:
+                if val_str and val_str != str(issue.get("bad_value")):
+                    is_fixed = True
+                    message = f"Format is now valid: '{current_value}'."
+                else:
+                    message = f"Value '{current_value}' still fails format rule."
+
+        elif check_type == "categorical_check":
+            val_str = str(current_value or "").strip().lower()
+            allowed = {"pending", "processing", "shipped", "delivered", "cancelled"}
+            if val_str in allowed:
+                is_fixed = True
+                message = f"Status '{current_value}' is now a recognized category."
+            else:
+                message = f"Status '{current_value}' is still not an allowed category ({', '.join(allowed)})."
+
+        elif check_type == "referential_integrity_check":
+            if column_name == "user_id":
+                try:
+                    uid = int(current_value)
+                    user_exists = conn.execute(
+                        text("SELECT count(*) FROM users WHERE id = :uid"),
+                        {"uid": uid},
+                    ).scalar()
+                    if user_exists and user_exists > 0:
+                        is_fixed = True
+                        message = f"Referenced user ID {uid} exists in the users table."
+                    else:
+                        message = f"User ID {uid} still does not exist in the users table."
+                except (ValueError, TypeError):
+                    message = f"Invalid user_id value '{current_value}'."
+            else:
+                message = f"Unknown foreign key check for '{column_name}'."
+        else:
+            if str(current_value) != str(issue.get("bad_value")):
+                is_fixed = True
+                message = f"Value changed from '{issue.get('bad_value')}' to '{current_value}'."
+            else:
+                message = f"Value '{current_value}' is unchanged."
+
+        if is_fixed:
+            update_issue_status(
+                issue_id=issue_id,
+                status="RESOLVED",
+                updated_by=updated_by,
+                notes=f"Live verification succeeded. Current value: {current_value}",
+                resolution_type="MANUAL_FIX_VERIFIED",
+            )
+            return {
+                "fixed": True,
+                "current_value": str(current_value),
+                "message": f"Verified! {message}",
+            }
+        else:
+            return {
+                "fixed": False,
+                "current_value": str(current_value),
+                "message": f"Not fixed yet: {message}",
+            }
+
