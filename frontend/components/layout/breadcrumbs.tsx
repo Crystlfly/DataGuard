@@ -11,7 +11,6 @@ const labels: Record<string, string> = {
   rules: "Rules",
   admin: "Admin",
   setup: "Setup",
-  notifications: "Notifications",
   users: "User Management",
   "audit-logs": "Audit Logs",
 }

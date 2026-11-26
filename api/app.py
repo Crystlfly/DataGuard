@@ -19,7 +19,7 @@ from api.routes.remediation import router as remediation_router
 from api.routes.users import router as users_router
 from config.settings import PROJECT_ROOT, get_env
 from data_sources.postgres_connector import create_monitor_engine
-from dashboard.actions import run_checks_subprocess
+from services.pipeline_service import run_checks_subprocess
 from services.rules_service import (
     delete_table_rules_from_db,
     get_flat_rules_for_database,

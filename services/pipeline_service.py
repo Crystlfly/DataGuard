@@ -1,4 +1,4 @@
-"""Operational dashboard actions."""
+"""Pipeline execution service for triggering data quality runs."""
 
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ def run_checks_subprocess(
     project_root: str | Path,
     timeout_seconds: int = 600,
 ) -> dict[str, Any]:
-    """Run `python main.py` safely for a dashboard-triggered check run."""
+    """Run `python main.py` safely for an API-triggered check run."""
 
     completed = subprocess.run(
         [sys.executable, "main.py"],
@@ -51,7 +51,7 @@ def run_checks_subprocess(
         text=True,
         timeout=timeout_seconds,
         check=False,
-        env=_safe_child_environment(),
+        env=dict(os.environ),
     )
 
     return {
@@ -60,9 +60,3 @@ def run_checks_subprocess(
         "stderr": sanitize_command_output(completed.stderr),
         "success": completed.returncode == 0,
     }
-
-
-def _safe_child_environment() -> dict[str, str]:
-    """Return the inherited process environment without adding secrets."""
-
-    return dict(os.environ)

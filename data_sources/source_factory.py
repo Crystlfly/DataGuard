@@ -16,7 +16,7 @@ from data_sources.base_connector import BaseConnector
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(PROJECT_ROOT / ".env")
 
-SUPPORTED_SOURCE_TYPES = {"postgres", "redshift", "snowflake", "bigquery", "mongodb"}
+SUPPORTED_SOURCE_TYPES = {"postgres"}
 
 
 @dataclass(frozen=True)
@@ -54,13 +54,9 @@ def get_source_module_name(source_type: str | None = None) -> str:
     """Return the module name used for the configured source type."""
 
     normalized = get_source_type(source_type)
-    return {
-        "postgres": "data_sources.postgres_connector",
-        "redshift": "data_sources.redshift_connector",
-        "snowflake": "data_sources.snowflake_connector",
-        "bigquery": "data_sources.bigquery_connector",
-        "mongodb": "data_sources.mongodb_connector",
-    }[normalized]
+    if normalized == "postgres":
+        return "data_sources.postgres_connector"
+    raise ValueError(f"Unsupported source database type: {normalized!r}.")
 
 
 def get_source_connector(source_type: str | None = None) -> BaseConnector:
@@ -72,26 +68,6 @@ def get_source_connector(source_type: str | None = None) -> BaseConnector:
         from data_sources.postgres_connector import PostgresConnector
 
         return PostgresConnector()
-
-    if normalized == "redshift":
-        from data_sources.redshift_connector import RedshiftConnector
-
-        return RedshiftConnector()
-
-    if normalized == "snowflake":
-        from data_sources.snowflake_connector import SnowflakeConnector
-
-        return SnowflakeConnector()
-
-    if normalized == "bigquery":
-        from data_sources.bigquery_connector import BigQueryConnector
-
-        return BigQueryConnector()
-
-    if normalized == "mongodb":
-        from data_sources.mongodb_connector import MongoDBConnector
-
-        return MongoDBConnector()
 
     raise ValueError(f"Unsupported source database type: {normalized!r}.")
 
