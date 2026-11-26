@@ -5,14 +5,10 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   Activity,
-  BarChart3,
   Columns3,
   Database,
-  FileWarning,
   GitBranch,
   LayoutDashboard,
-  ListChecks,
-  SearchCheck,
   SlidersHorizontal,
   Wrench,
   Target,
@@ -56,7 +52,6 @@ export function Sidebar() {
     {
       label: "Command Center",
       items: [
-        { href: "/overview", label: "Overview", icon: BarChart3 },
         { href: "/dashboard", label: "Executive Dashboard", icon: LayoutDashboard },
       ],
     },
@@ -64,14 +59,6 @@ export function Sidebar() {
       label: "Operations",
       items: [
         { href: "/remediation", label: "Data Remediation Center", icon: Wrench },
-      ],
-    },
-    {
-      label: "Monitoring",
-      items: [
-        { href: "/quality-explorer", label: "Quality Explorer", icon: SearchCheck },
-        { href: "/check-results", label: "Check Results", icon: ListChecks },
-        { href: "/issue-details", label: "Issue Details", icon: FileWarning },
       ],
     },
     {

@@ -18,8 +18,7 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/alerts", label: "Alerts", icon: AlertTriangle },
-  { href: "/quality-explorer", label: "Quality Explorer", icon: Activity },
+  { href: "/remediation", label: "Remediation", icon: AlertTriangle },
   { href: "/sla", label: "SLA", icon: ShieldCheck },
   { href: "/lineage", label: "Lineage", icon: GitBranch },
   { href: "/rules", label: "Rules", icon: ClipboardList },

@@ -7,12 +7,7 @@ import { ChevronRight } from "lucide-react"
 const labels: Record<string, string> = {
   dashboard: "Executive Dashboard",
   profile: "My Profile",
-  overview: "Overview",
-  "check-results": "Check Results",
-  "issue-details": "Issue Details",
   remediation: "Data Remediation Center",
-  alerts: "Alerts",
-  "quality-explorer": "Quality Explorer",
   sla: "SLA",
   "schema-drift": "Schema Drift",
   lineage: "Lineage",
