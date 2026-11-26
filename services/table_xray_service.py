@@ -28,6 +28,7 @@ from services.data_cleaning_service import (
     update_issue_status,
 )
 from services.rules_service import INTERNAL_PREFIXES, get_rules_for_database
+from services.time_travel_service import record_time_travel_mutation
 from utils.audit_logger import log_audit_event
 from utils.logger import get_logger
 
@@ -424,13 +425,29 @@ def update_cell_inline(
                 )
                 resolved_issue_ids.append(issue_id)
 
+    serialized_new = _serialize_cell(typed_new_value)
+    mutation_id = None
+    if old_value != serialized_new:
+        mutation_id = record_time_travel_mutation(
+            database_name=db_name,
+            table_name=validated_table,
+            column_name=validated_col,
+            primary_key=primary_key,
+            old_value=old_value,
+            new_value=serialized_new,
+            source="INLINE_EDIT",
+            changed_by=updated_by,
+            resolved_issue_ids=resolved_issue_ids,
+        )
+
     return {
         "success": True,
+        "mutation_id": mutation_id,
         "table_name": validated_table,
         "column_name": validated_col,
         "primary_key": primary_key,
         "old_value": old_value,
-        "new_value": _serialize_cell(typed_new_value),
+        "new_value": serialized_new,
         "is_clean": is_clean_now,
         "remaining_defects": remaining_defects,
         "resolved_issue_ids": resolved_issue_ids,

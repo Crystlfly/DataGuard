@@ -10,6 +10,7 @@ const titles: Record<string, string> = {
   "/dashboard": "Executive Dashboard",
   "/regressions": "Run-to-Run Regression Diff",
   "/remediation": "Data Remediation Center",
+  "/history": "Time-Travel & Undo",
   "/rules": "Rules Catalog",
   "/admin": "Administration",
 }

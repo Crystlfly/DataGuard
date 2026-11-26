@@ -467,6 +467,28 @@ CREATE_TABLE_STATEMENTS = [
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS data_time_travel_log (
+        id SERIAL PRIMARY KEY,
+        database_name VARCHAR(100) NOT NULL,
+        table_name VARCHAR(100) NOT NULL,
+        column_name VARCHAR(100) NOT NULL,
+        primary_key JSONB NOT NULL,
+        old_value JSONB,
+        new_value JSONB,
+        source VARCHAR(50) DEFAULT 'INLINE_EDIT',
+        status VARCHAR(30) DEFAULT 'APPLIED',
+        changed_by VARCHAR(100) DEFAULT 'user',
+        reverted_at TIMESTAMP,
+        reverted_by VARCHAR(100),
+        resolved_issue_ids JSONB DEFAULT '[]'::jsonb,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS idx_time_travel_log_db_created
+    ON data_time_travel_log (database_name, id DESC)
+    """,
 ]
 
 

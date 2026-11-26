@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import {
   Database,
   GitCompareArrows,
+  History,
   LayoutDashboard,
   SlidersHorizontal,
   Wrench,
@@ -57,6 +58,7 @@ export function Sidebar() {
       label: "Operations",
       items: [
         { href: "/remediation", label: "Data Remediation Center", icon: Wrench },
+        { href: "/history", label: "Time-Travel & Undo", icon: History },
       ],
     },
   ]

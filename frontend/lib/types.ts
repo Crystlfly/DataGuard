@@ -522,3 +522,29 @@ export type RunDiffResponse = {
   persistent_failures: RunDiffItem[]
   unchanged_passes: number
 }
+
+export type TimeTravelMutation = {
+  id: number
+  database_name: string
+  table_name: string
+  column_name: string
+  primary_key: Record<string, any>
+  old_value: any
+  new_value: any
+  source: string
+  status: "APPLIED" | "REVERTED" | string
+  changed_by: string
+  resolved_issue_ids: number[]
+  created_at?: string | null
+  reverted_at?: string | null
+  reverted_by?: string | null
+}
+
+export type TimeTravelHistoryResponse = {
+  database: string
+  total: number
+  applied_count: number
+  reverted_count: number
+  tables: string[]
+  mutations: TimeTravelMutation[]
+}

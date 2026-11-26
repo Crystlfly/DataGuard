@@ -485,6 +485,25 @@ def execute_cleaning_job(job_id: int, executed_by: str, role: str = "viewer") ->
                 result = source_connection.execute(update_query, params)
                 updated = int(result.rowcount or 0)
 
+            if updated > 0 and pending_changes:
+                try:
+                    from config.settings import get_source_db_config
+                    from services.time_travel_service import record_time_travel_mutation
+
+                    record_time_travel_mutation(
+                        database_name=get_source_db_config().database,
+                        table_name=normalized.target_table,
+                        column_name=str(normalized.target_column),
+                        primary_key=where,
+                        old_value=pending_changes[0][0],
+                        new_value=pending_changes[0][1],
+                        source="REMEDIATION_JOB",
+                        changed_by=executed_by,
+                        resolved_issue_ids=[int(job["issue_id"])] if job.get("issue_id") else [],
+                    )
+                except Exception:
+                    logger.warning("Failed to record remediation job in time-travel log.")
+
         _mark_job_executed(job_id, executed_by, updated)
         update_issue_status(int(job["issue_id"]), "FIX_APPLIED", executed_by, notes=f"Cleaning job #{job_id} executed.")
         event_type = "CLEANING_JOB_EXECUTED"

@@ -31,6 +31,8 @@ import type {
   SmartRuleInferenceResponse,
   SlaResult,
   TableXrayResponse,
+  TimeTravelHistoryResponse,
+  TimeTravelMutation,
   UpdateUserPayload,
 } from "@/lib/types"
 import { API_TOKEN_STORAGE_KEY, USER_NAME_STORAGE_KEY, USER_ROLE_STORAGE_KEY } from "@/lib/constants"
@@ -302,6 +304,28 @@ export const api = {
     const q = params.toString() ? `?${params.toString()}` : ""
     return requestJson<RunDiffResponse>(`/api/v1/runs/diff${q}`)
   },
+  timeTravelHistory: (opts?: { tableName?: string; status?: string }) => {
+    const params = new URLSearchParams()
+    if (opts?.tableName && opts.tableName !== "ALL") params.set("table_name", opts.tableName)
+    if (opts?.status && opts.status !== "ALL") params.set("status", opts.status)
+    const q = params.toString() ? `?${params.toString()}` : ""
+    return requestJson<TimeTravelHistoryResponse>(`/api/v1/history${q}`)
+  },
+  undoMutation: (mutationId: number) =>
+    requestJson<{ success: boolean; mutation: TimeTravelMutation; reopened_issue_ids: number[]; message: string }>(
+      `/api/v1/history/${mutationId}/undo`,
+      { method: "POST" }
+    ),
+  redoMutation: (mutationId: number) =>
+    requestJson<{ success: boolean; mutation: TimeTravelMutation; message: string }>(
+      `/api/v1/history/${mutationId}/redo`,
+      { method: "POST" }
+    ),
+  revertToCheckpoint: (mutationId: number) =>
+    requestJson<{ success: boolean; reverted_count: number; reverted_ids: number[]; message: string }>(
+      `/api/v1/history/${mutationId}/revert-to`,
+      { method: "POST" }
+    ),
 }
 
 export const getLatestRun = api.latestRun

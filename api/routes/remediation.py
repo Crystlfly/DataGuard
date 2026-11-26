@@ -25,6 +25,12 @@ from services.data_cleaning_service import (
     verify_individual_issue,
 )
 from services.table_xray_service import get_table_xray, update_cell_inline
+from services.time_travel_service import (
+    list_time_travel_history,
+    redo_mutation,
+    time_travel_to_checkpoint,
+    undo_mutation,
+)
 from utils.audit_logger import log_audit_event
 from utils.logger import get_logger
 
@@ -340,6 +346,59 @@ def inline_cell_edit_endpoint(
             new_value=payload.new_value,
             updated_by=identity.get("username", "user"),
         )
+    except Exception as exc:
+        raise _friendly_error(exc)
+
+
+@router.get("/history")
+def get_time_travel_history_endpoint(
+    table_name: str | None = Query(None),
+    status_filter: str | None = Query(None, alias="status"),
+    limit: int = Query(200, ge=1, le=1000),
+) -> dict[str, Any]:
+    """Return recorded database cell mutations for the Time-Travel & Undo timeline."""
+    try:
+        return list_time_travel_history(
+            table_name=table_name,
+            status_filter=status_filter,
+            limit=limit,
+        )
+    except Exception as exc:
+        raise _friendly_error(exc)
+
+
+@router.post("/history/{mutation_id}/undo")
+def undo_mutation_endpoint(
+    mutation_id: int,
+    identity: dict[str, str] = Depends(_identity),
+) -> dict[str, Any]:
+    """Undo a single database cell mutation back to its original old_value."""
+    try:
+        return undo_mutation(mutation_id, requested_by=identity.get("username", "user"))
+    except Exception as exc:
+        raise _friendly_error(exc)
+
+
+@router.post("/history/{mutation_id}/redo")
+def redo_mutation_endpoint(
+    mutation_id: int,
+    identity: dict[str, str] = Depends(_identity),
+) -> dict[str, Any]:
+    """Re-apply a previously reverted mutation back to its new_value."""
+    try:
+        return redo_mutation(mutation_id, requested_by=identity.get("username", "user"))
+    except Exception as exc:
+        raise _friendly_error(exc)
+
+
+@router.post("/history/{mutation_id}/revert-to")
+def revert_to_checkpoint_endpoint(
+    mutation_id: int,
+    identity: dict[str, str] = Depends(_identity),
+) -> dict[str, Any]:
+    """Time-travel back before a specific mutation ID, reverting all newer applied edits."""
+    try:
+        return time_travel_to_checkpoint(mutation_id, requested_by=identity.get("username", "user"))
     except Exception as exc:
         raise _friendly_error(exc)
 
