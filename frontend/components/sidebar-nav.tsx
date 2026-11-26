@@ -3,15 +3,11 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  Activity,
   AlertTriangle,
   ClipboardList,
-  Database,
-  GitBranch,
   LayoutDashboard,
   LockKeyhole,
   ScrollText,
-  ShieldCheck,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -19,10 +15,7 @@ import { cn } from "@/lib/utils"
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/remediation", label: "Remediation", icon: AlertTriangle },
-  { href: "/sla", label: "SLA", icon: ShieldCheck },
-  { href: "/lineage", label: "Lineage", icon: GitBranch },
   { href: "/rules", label: "Rules", icon: ClipboardList },
-  { href: "/profiling", label: "Profiling", icon: Database },
   { href: "/admin", label: "Admin", icon: LockKeyhole },
 ]
 

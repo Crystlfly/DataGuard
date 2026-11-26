@@ -369,10 +369,10 @@ export default function LandingPage() {
               </p>
               <div className="mt-5 pt-4 border-t border-white/5">
                 <Link
-                  href="/schema-drift"
+                  href="/dashboard"
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#B3FF4C] hover:underline"
                 >
-                  Inspect Schema Drift &rarr;
+                  View Executive Dashboard &rarr;
                 </Link>
               </div>
             </div>
@@ -391,10 +391,10 @@ export default function LandingPage() {
               </p>
               <div className="mt-5 pt-4 border-t border-white/5">
                 <Link
-                  href="/lineage"
+                  href="/dashboard"
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#B3FF4C] hover:underline"
                 >
-                  View Lineage Graph &rarr;
+                  View Quality Health &rarr;
                 </Link>
               </div>
             </div>
@@ -413,10 +413,10 @@ export default function LandingPage() {
               </p>
               <div className="mt-5 pt-4 border-t border-white/5">
                 <Link
-                  href="/sla"
+                  href="/dashboard"
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#B3FF4C] hover:underline"
                 >
-                  Track SLA Posture &rarr;
+                  Track Quality Posture &rarr;
                 </Link>
               </div>
             </div>

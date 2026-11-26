@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { AlertTriangle, Database, Gauge, ListChecks, ShieldCheck, Wrench } from "lucide-react"
+import { AlertTriangle, CheckCircle2, Database, Gauge, ListChecks, SlidersHorizontal, Wrench } from "lucide-react"
 
 import { FailedChecksChart } from "@/components/charts/failed-checks-chart"
 import { QualityTrendChart } from "@/components/charts/quality-trend-chart"
@@ -17,7 +17,7 @@ import { StatusBadge } from "@/components/ui-custom/status-badge"
 import { EmptyState } from "@/components/ui-custom/empty-state"
 import { api } from "@/lib/api-client"
 import { formatDateTime, formatNumber, formatPercent } from "@/lib/formatters"
-import type { CheckResult, RunSummary, SlaResult } from "@/lib/types"
+import type { CheckResult, RunSummary } from "@/lib/types"
 
 function countBy<T>(rows: T[], getter: (row: T) => string | undefined) {
   const counts = new Map<string, number>()
@@ -32,7 +32,6 @@ export default function DashboardPage() {
   const [runs, setRuns] = useState<RunSummary[]>([])
   const [latestRun, setLatestRun] = useState<RunSummary | null>(null)
   const [results, setResults] = useState<CheckResult[]>([])
-  const [sla, setSla] = useState<SlaResult[]>([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState("")
   const [lastRefreshed, setLastRefreshed] = useState("")
@@ -41,14 +40,12 @@ export default function DashboardPage() {
     setLoading(true)
     setMessage("")
     try {
-      const [runRows, latest, slaRows] = await Promise.all([
+      const [runRows, latest] = await Promise.all([
         api.runs(),
         api.latestRun().catch(() => null),
-        api.sla().catch(() => []),
       ])
       setRuns(runRows)
       setLatestRun(latest)
-      setSla(slaRows)
       setResults(latest?.run_id ? await api.results(latest.run_id).catch(() => []) : [])
       setLastRefreshed(formatDateTime(new Date()))
     } catch (err) {
@@ -65,8 +62,10 @@ export default function DashboardPage() {
   const datasets = new Set(results.map((row) => row.dataset_name).filter(Boolean))
   const failedResults = results.filter((row) => row.status === "FAIL")
   const criticalResults = results.filter((row) => row.severity === "CRITICAL")
-  const slaPassCount = sla.filter((row) => row.sla_status === "PASS").length
-  const slaCompliance = sla.length ? (slaPassCount / sla.length) * 100 : 0
+  const totalChecks = latestRun?.total_checks ?? results.length
+  const failedChecksCount = latestRun?.failed_checks ?? failedResults.length
+  const passedChecksCount = Math.max(0, totalChecks - failedChecksCount)
+  const passRate = totalChecks ? (passedChecksCount / totalChecks) * 100 : 100
 
   const trendData = [...runs]
     .reverse()
@@ -83,7 +82,7 @@ export default function DashboardPage() {
 
   const degradedDatasets = failedByDataset.slice(0, 5)
   const failuresBySeverity = countBy(failedResults, (row) => row.severity)
-  const slaDistribution = countBy(sla, (row) => row.sla_status)
+  const failuresByCheckType = countBy(failedResults, (row) => row.check_type || "other")
 
   async function runChecks() {
     setMessage("Running checks...")
@@ -101,7 +100,7 @@ export default function DashboardPage() {
       <PageHeader
         eyebrow="Command Center"
         title="Executive Dashboard"
-        subtitle="Management-ready view of quality score, SLA posture, and datasets requiring action."
+        subtitle="Management-ready view of data quality score, pass rates, and datasets requiring action."
         onRefresh={loadDashboard}
         actions={
           <div className="flex items-center gap-2">
@@ -112,7 +111,17 @@ export default function DashboardPage() {
                 className="h-7 px-2.5 text-xs border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.08] hover:text-white"
               >
                 <Database className="size-3.5" />
-                Connect Database
+                Connect DB
+              </Button>
+            </Link>
+            <Link href="/rules">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2.5 text-xs border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.08] hover:text-white"
+              >
+                <SlidersHorizontal className="size-3.5" />
+                Quality Rules
               </Button>
             </Link>
             <Button
@@ -141,10 +150,10 @@ export default function DashboardPage() {
           tone="blue"
         />
         <EnterpriseMetricCard
-          title="SLA Compliance"
-          value={loading ? "..." : formatPercent(slaCompliance, 1)}
-          description={`${slaPassCount} of ${sla.length} passing`}
-          icon={ShieldCheck}
+          title="Pass Rate"
+          value={loading ? "..." : formatPercent(passRate, 1)}
+          description={`${passedChecksCount} of ${totalChecks} checks passing`}
+          icon={CheckCircle2}
           tone="green"
         />
         <EnterpriseMetricCard
@@ -214,9 +223,9 @@ export default function DashboardPage() {
           description="Failed check breakdown by urgency."
         />
         <SeverityDistributionChart
-          data={slaDistribution}
-          title="SLA Status Distribution"
-          description="Dataset SLA outcomes."
+          data={failuresByCheckType}
+          title="Defects by Check Type"
+          description="Failed checks grouped by rule type."
         />
       </div>
 

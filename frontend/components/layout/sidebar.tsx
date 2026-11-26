@@ -4,14 +4,10 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  Activity,
-  Columns3,
   Database,
-  GitBranch,
   LayoutDashboard,
   SlidersHorizontal,
   Wrench,
-  Target,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -59,15 +55,6 @@ export function Sidebar() {
       label: "Operations",
       items: [
         { href: "/remediation", label: "Data Remediation Center", icon: Wrench },
-      ],
-    },
-    {
-      label: "Governance",
-      items: [
-        { href: "/sla", label: "SLA Command Center", icon: Target },
-        { href: "/lineage", label: "Data Lineage", icon: GitBranch },
-        { href: "/profiling", label: "Data Profiling", icon: Activity },
-        { href: "/schema-drift", label: "Schema Drift", icon: Columns3 },
       ],
     },
   ]
