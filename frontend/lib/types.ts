@@ -391,3 +391,134 @@ export type TableRuleConfig = {
   categorical_checks?: Record<string, { allowed_values: string[] }>
   referential_integrity?: Record<string, { foreign_table: string; foreign_column: string }>
 }
+
+export type DryRunExample = {
+  row_identifier: string
+  bad_value: string
+  reason: string
+}
+
+export type DryRunCheckResult = {
+  check_type: string
+  column_name?: string | null
+  rule: string
+  status: string
+  severity: string
+  total_rows: number
+  failed_rows: number
+  failure_rate: number
+  reason: string
+  examples: DryRunExample[]
+}
+
+export type DryRunResponse = {
+  table_name: string
+  row_count: number
+  total_checks: number
+  passed_checks: number
+  failed_checks: number
+  estimated_score: number
+  results: DryRunCheckResult[]
+}
+
+export type SmartRuleSuggestion = {
+  id: string
+  table_name: string
+  column_name: string
+  rule_type: string
+  rule_config: Record<string, any>
+  confidence: number
+  matching_rows: number
+  would_fail_rows: number
+  sample_outliers: string[]
+  reason: string
+}
+
+export type SmartRuleInferenceResponse = {
+  database: string
+  total_suggestions: number
+  tables: Record<
+    string,
+    {
+      row_count: number
+      suggestions: SmartRuleSuggestion[]
+    }
+  >
+}
+
+export type TableXrayCellIssue = {
+  issue_id?: number
+  check_type: string
+  rule: string
+  severity: string
+  reason: string
+}
+
+export type TableXrayRow = {
+  row_index: number
+  primary_key: Record<string, any>
+  values: Record<string, any>
+  cell_issues: Record<string, TableXrayCellIssue[]>
+  has_defects: boolean
+}
+
+export type TableXrayResponse = {
+  table_name: string
+  run_id?: number | null
+  total_rows: number
+  filtered_rows: number
+  defective_cells: number
+  primary_key_columns: string[]
+  columns: ColumnSummary[]
+  rows: TableXrayRow[]
+  tables: Array<{ name: string; open_issues: number }>
+}
+
+export type InlineCellEditResponse = {
+  success: boolean
+  table_name: string
+  column_name: string
+  primary_key: Record<string, any>
+  old_value: any
+  new_value: any
+  is_clean: boolean
+  remaining_defects: TableXrayCellIssue[]
+  resolved_issue_ids: number[]
+  message: string
+}
+
+export type RunDiffItem = {
+  dataset_name: string
+  check_type: string
+  column_name: string
+  rule: string
+  severity: string
+  base_status: string
+  target_status: string
+  base_failed_rows: number
+  target_failed_rows: number
+  failed_rows_delta: number
+  base_failure_rate: number
+  target_failure_rate: number
+  failure_rate_delta: number
+  total_rows: number
+  examples: DryRunExample[]
+}
+
+export type RunDiffResponse = {
+  has_runs: boolean
+  available_runs: RunSummary[]
+  base_run: RunSummary | null
+  target_run: RunSummary | null
+  verdict: "IMPROVED" | "DEGRADED" | "STABLE" | "BASELINE_ONLY" | "NO_RUNS"
+  summary_delta: {
+    quality_score_delta?: number
+    failed_checks_delta?: number
+    passed_checks_delta?: number
+    critical_checks_delta?: number
+  }
+  new_regressions: RunDiffItem[]
+  newly_resolved: RunDiffItem[]
+  persistent_failures: RunDiffItem[]
+  unchanged_passes: number
+}

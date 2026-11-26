@@ -9,6 +9,7 @@ import {
   Database,
   Layers,
   SlidersHorizontal,
+  Sparkles,
   Table2,
   Trash2,
   Wand2,
@@ -23,8 +24,13 @@ import { EnterpriseMetricCard } from "@/components/ui-custom/metric-card"
 import { PageHeader } from "@/components/ui-custom/page-header"
 import { SeverityBadge } from "@/components/ui-custom/severity-badge"
 import { InPageRuleEditor } from "@/components/rules/in-page-rule-editor"
+import { SmartInferencePanel } from "@/components/rules/smart-inference-panel"
 import { api } from "@/lib/api-client"
-import type { DatabaseSchemaResponse, RuleCatalogRow } from "@/lib/types"
+import type {
+  DatabaseSchemaResponse,
+  RuleCatalogRow,
+  SmartRuleInferenceResponse,
+} from "@/lib/types"
 
 export default function RulesPage() {
   const [rows, setRows] = useState<RuleCatalogRow[]>([])
@@ -37,6 +43,8 @@ export default function RulesPage() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [generatingBaselines, setGeneratingBaselines] = useState(false)
+  const [inferringSmart, setInferringSmart] = useState(false)
+  const [inferenceData, setInferenceData] = useState<SmartRuleInferenceResponse | null>(null)
 
   async function loadAllData() {
     setLoading(true)
@@ -173,6 +181,22 @@ export default function RulesPage() {
     }
   }
 
+  async function handleSmartInferRules() {
+    setInferringSmart(true)
+    setMessage(null)
+    try {
+      const res = await api.inferSmartRules()
+      setInferenceData(res)
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err instanceof Error ? err.message : "Smart rule inference failed.",
+      })
+    } finally {
+      setInferringSmart(false)
+    }
+  }
+
   async function handleDeleteActiveTableRules() {
     if (!activeTable) return
     if (!confirm(`Are you sure you want to delete all rules for table '${activeTable}' from PostgreSQL?`)) {
@@ -240,19 +264,44 @@ export default function RulesPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            onClick={handleSmartInferRules}
+            disabled={inferringSmart || generatingBaselines}
+            className="bg-[#B3FF4C] text-black font-semibold hover:bg-[#a3f03b] text-xs gap-1.5"
+          >
+            <Sparkles className="size-3.5" />
+            {inferringSmart ? "Scanning Live Data..." : "Smart Infer Rules (Scan Live Data)"}
+          </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={handleAutoGenerateAllBaselines}
-            disabled={generatingBaselines}
-            className="border-[#B3FF4C]/30 bg-[#B3FF4C]/10 text-[#B3FF4C] hover:bg-[#B3FF4C]/20 text-xs gap-1.5"
+            disabled={generatingBaselines || inferringSmart}
+            className="border-white/15 bg-white/[0.03] text-zinc-200 hover:bg-white/[0.08] text-xs gap-1.5"
           >
             <Wand2 className="size-3.5" />
-            {generatingBaselines ? "Generating..." : "Auto-Generate Baseline Rules (All Tables)"}
+            {generatingBaselines ? "Generating..." : "Quick Schema Starters"}
           </Button>
         </div>
       </div>
+
+      {inferenceData ? (
+        <SmartInferencePanel
+          data={inferenceData}
+          existingRules={rawRules}
+          onClose={() => setInferenceData(null)}
+          onApplied={(count) => {
+            setInferenceData(null)
+            setMessage({
+              type: "success",
+              text: `Accepted and saved ${count} data-inferred rule(s) into PostgreSQL!`,
+            })
+            loadAllData()
+          }}
+        />
+      ) : null}
 
       {message ? (
         <div

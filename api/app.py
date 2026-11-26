@@ -21,10 +21,13 @@ from api.routes.users import router as users_router
 from config.settings import PROJECT_ROOT, get_env
 from data_sources.postgres_connector import create_monitor_engine
 from services.pipeline_service import run_checks_subprocess
+from services.regression_service import get_run_diff
 from services.rules_service import (
     delete_table_rules_from_db,
+    dry_run_table_rules,
     get_flat_rules_for_database,
     get_rules_for_database,
+    infer_smart_rules,
     save_all_rules_in_db,
     save_table_rules_in_db,
 )
@@ -297,6 +300,22 @@ def get_latest_run() -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="No data quality runs found.")
 
     return row
+
+
+@api_v1.get("/runs/diff")
+def get_runs_regression_diff(
+    base_run_id: int | None = Query(None),
+    target_run_id: int | None = Query(None),
+) -> dict[str, Any]:
+    """Compare two data quality runs and return regressions, resolutions, and deltas."""
+    try:
+        return get_run_diff(base_run_id=base_run_id, target_run_id=target_run_id)
+    except Exception as exc:
+        logger.exception("Run-to-run diff calculation failed: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to compute run regression diff: {exc}",
+        )
 
 
 @api_v1.get("/results")
@@ -779,6 +798,36 @@ def delete_table_rules_endpoint(table_name: str, request: Request) -> dict[str, 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to delete rules for table {table_name}: {exc}",
+        )
+
+
+@api_v1.post("/rules/table/{table_name}/dry-run")
+def dry_run_table_rules_endpoint(table_name: str, payload: dict[str, Any]) -> dict[str, Any]:
+    """Run draft quality rules against live table data without saving them."""
+    try:
+        return dry_run_table_rules(table_name, payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+    except Exception as exc:
+        logger.exception("Dry run failed for table %s: %s", table_name, exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Dry run failed for table {table_name}: {exc}",
+        )
+
+
+@api_v1.post("/rules/infer")
+def infer_rules_endpoint(payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Scan live database tables to propose data-aware rules with confidence scores."""
+    try:
+        db_name = _active_database()
+        table_name = (payload or {}).get("table_name")
+        return infer_smart_rules(db_name, target_table=table_name)
+    except Exception as exc:
+        logger.exception("Smart rule inference failed: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Smart rule inference failed: {exc}",
         )
 
 

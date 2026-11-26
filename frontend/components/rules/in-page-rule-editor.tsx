@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from "react"
 import {
+  AlertTriangle,
   Check,
+  CheckCircle2,
+  FlaskConical,
   Layers,
   Plus,
   Trash2,
   Wand2,
+  X,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -15,7 +19,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { api } from "@/lib/api-client"
-import type { DatabaseSchemaResponse, TableRuleConfig, TableSchema } from "@/lib/types"
+import type { DatabaseSchemaResponse, DryRunResponse, TableRuleConfig, TableSchema } from "@/lib/types"
 
 interface InPageRuleEditorProps {
   tableName: string
@@ -35,6 +39,8 @@ export function InPageRuleEditor({
   const currentColumns = currentTableSchema?.columns ?? []
 
   const [saving, setSaving] = useState(false)
+  const [testingDryRun, setTestingDryRun] = useState(false)
+  const [dryRunResult, setDryRunResult] = useState<DryRunResponse | null>(null)
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
   // Current table config state
@@ -126,6 +132,7 @@ export function InPageRuleEditor({
     }
     setReferentialChecks(refList)
     setStatusMessage(null)
+    setDryRunResult(null)
   }, [tableName, existingRules])
 
   function toggleColumnInList(list: string[], setList: (l: string[]) => void, colName: string) {
@@ -199,11 +206,7 @@ export function InPageRuleEditor({
     })
   }
 
-  async function handleSave() {
-    if (!tableName) return
-    setSaving(true)
-    setStatusMessage(null)
-
+  function buildTableConfig(): Record<string, any> {
     const tableConfig: Record<string, any> = {}
 
     if (requiredColumns.length > 0) {
@@ -216,7 +219,6 @@ export function InPageRuleEditor({
       tableConfig.not_null_columns = notNullColumns
     }
 
-    // Range checks
     if (rangeChecks.length > 0) {
       const rcObj: Record<string, any> = {}
       for (const rc of rangeChecks) {
@@ -235,7 +237,6 @@ export function InPageRuleEditor({
       }
     }
 
-    // Format checks
     if (formatChecks.length > 0) {
       const fcObj: Record<string, string> = {}
       for (const fc of formatChecks) {
@@ -248,7 +249,6 @@ export function InPageRuleEditor({
       }
     }
 
-    // Categorical checks
     if (categoricalChecks.length > 0) {
       const ccObj: Record<string, any> = {}
       for (const cc of categoricalChecks) {
@@ -266,7 +266,6 @@ export function InPageRuleEditor({
       }
     }
 
-    // Referential checks
     if (referentialChecks.length > 0) {
       const refObj: Record<string, any> = {}
       for (const ref of referentialChecks) {
@@ -282,12 +281,49 @@ export function InPageRuleEditor({
       }
     }
 
+    return tableConfig
+  }
+
+  async function handleDryRun() {
+    if (!tableName) return
+    const draftConfig = buildTableConfig()
+    if (Object.keys(draftConfig).length === 0) {
+      setStatusMessage({
+        type: "error",
+        text: "Select or add at least one rule before running a dry-run test.",
+      })
+      return
+    }
+
+    setTestingDryRun(true)
+    setStatusMessage(null)
+    try {
+      const res = await api.dryRunTableRules(tableName, draftConfig)
+      setDryRunResult(res)
+    } catch (err) {
+      setStatusMessage({
+        type: "error",
+        text: err instanceof Error ? err.message : "Dry-run test failed.",
+      })
+    } finally {
+      setTestingDryRun(false)
+    }
+  }
+
+  async function handleSave() {
+    if (!tableName) return
+    setSaving(true)
+    setStatusMessage(null)
+
+    const tableConfig = buildTableConfig()
+
     try {
       await api.saveTableRules(tableName, tableConfig)
       setStatusMessage({
         type: "success",
         text: `Quality rules for table '${tableName}' saved to database successfully!`,
       })
+      setDryRunResult(null)
       onSaveSuccess()
     } catch (err) {
       setStatusMessage({
@@ -320,7 +356,7 @@ export function InPageRuleEditor({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -328,7 +364,18 @@ export function InPageRuleEditor({
             className="border-[#B3FF4C]/30 bg-[#B3FF4C]/10 text-[#B3FF4C] hover:bg-[#B3FF4C]/20 text-xs gap-1.5 h-8"
           >
             <Wand2 className="size-3.5" />
-            Auto-Fill Table Starter Rules
+            Auto-Fill Starter Rules
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDryRun}
+            disabled={testingDryRun || saving}
+            className="border-cyan-500/30 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 text-xs gap-1.5 h-8"
+          >
+            <FlaskConical className="size-3.5" />
+            {testingDryRun ? "Testing Draft..." : "Test Before Saving (Dry Run)"}
           </Button>
 
           <Button
@@ -353,6 +400,117 @@ export function InPageRuleEditor({
           {statusMessage.type === "success" ? <Check className="size-4" /> : null}
           {statusMessage.text}
         </div>
+      ) : null}
+
+      {/* LIVE DRY-RUN PLAYGROUND PANEL */}
+      {dryRunResult ? (
+        <Card className="rounded-md border border-cyan-500/30 bg-[#0d1418]">
+          <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-cyan-500/15">
+            <div>
+              <div className="flex items-center gap-2">
+                <FlaskConical className="size-4 text-cyan-400" />
+                <CardTitle className="text-sm font-semibold text-white">
+                  Live Dry-Run Playground — {dryRunResult.table_name}
+                </CardTitle>
+                <span className="rounded bg-cyan-500/15 border border-cyan-500/30 px-2 py-0.5 text-[0.65rem] font-semibold text-cyan-300">
+                  UNSAVED DRAFT PREVIEW
+                </span>
+              </div>
+              <CardDescription className="text-xs text-zinc-400 mt-1">
+                Simulated {dryRunResult.total_checks} rule checks against{" "}
+                <strong className="text-zinc-200">{dryRunResult.row_count}</strong> live rows in PostgreSQL.
+              </CardDescription>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-xs">
+                <span className="rounded border border-white/10 bg-white/5 px-2 py-1 font-mono text-white">
+                  Projected Score:{" "}
+                  <strong className={dryRunResult.estimated_score >= 90 ? "text-[#B3FF4C]" : "text-amber-300"}>
+                    {dryRunResult.estimated_score}%
+                  </strong>
+                </span>
+                <span className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 font-semibold text-emerald-300">
+                  {dryRunResult.passed_checks} Pass
+                </span>
+                <span className="rounded border border-rose-500/30 bg-rose-500/10 px-2 py-1 font-semibold text-rose-300">
+                  {dryRunResult.failed_checks} Fail
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDryRunResult(null)}
+                className="rounded p-1 text-zinc-400 hover:bg-white/10 hover:text-white"
+                title="Close dry-run preview"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-3 space-y-2 max-h-[380px] overflow-y-auto">
+            {dryRunResult.results.map((item, idx) => {
+              const isFail = item.status === "FAIL"
+              return (
+                <div
+                  key={`${item.check_type}-${item.column_name}-${idx}`}
+                  className={`rounded-md border p-2.5 text-xs ${
+                    isFail
+                      ? "border-rose-500/25 bg-rose-500/[0.06]"
+                      : "border-emerald-500/20 bg-emerald-500/[0.04]"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      {isFail ? (
+                        <AlertTriangle className="size-3.5 text-rose-400 shrink-0" />
+                      ) : (
+                        <CheckCircle2 className="size-3.5 text-emerald-400 shrink-0" />
+                      )}
+                      <span className="font-mono font-semibold text-white">
+                        {item.column_name || "table"}
+                      </span>
+                      <span className="rounded bg-white/10 px-1.5 py-0.5 text-[0.65rem] text-zinc-300">
+                        {item.check_type}
+                      </span>
+                      {item.rule && (
+                        <code className="text-[0.68rem] text-cyan-300">{item.rule}</code>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={isFail ? "text-rose-300 font-medium" : "text-emerald-300 font-medium"}>
+                        {isFail
+                          ? `${item.failed_rows} / ${item.total_rows} failing (${(item.failure_rate * 100).toFixed(1)}%)`
+                          : `All ${item.total_rows} rows pass`}
+                      </span>
+                      <span
+                        className={`rounded px-1.5 py-0.5 text-[0.62rem] font-bold uppercase ${
+                          isFail
+                            ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                            : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </div>
+                  </div>
+                  {isFail && item.examples.length > 0 ? (
+                    <div className="mt-2 pl-5 flex flex-wrap items-center gap-1.5">
+                      <span className="text-[0.68rem] text-zinc-400">Sample failing records:</span>
+                      {item.examples.map((ex, eIdx) => (
+                        <span
+                          key={eIdx}
+                          className="rounded border border-rose-500/30 bg-black/40 px-2 py-0.5 font-mono text-[0.68rem] text-rose-200"
+                        >
+                          {ex.row_identifier}: <strong className="text-white">{ex.bad_value}</strong>
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              )
+            })}
+          </CardContent>
+        </Card>
       ) : null}
 
       {/* Tabs on the Main Screen */}
@@ -839,18 +997,30 @@ export function InPageRuleEditor({
       </Tabs>
 
       {/* Bottom Save Bar */}
-      <div className="flex items-center justify-between p-3.5 rounded-md border border-white/[0.08] bg-[#141414]">
+      <div className="flex flex-wrap items-center justify-between gap-2 p-3.5 rounded-md border border-white/[0.08] bg-[#141414]">
         <p className="text-xs text-zinc-400">
-          Ready to apply rules to <code className="text-[#B3FF4C]">{tableName}</code> in the database.
+          Test your draft rules live on <code className="text-cyan-300">{tableName}</code> before saving to the database.
         </p>
-        <Button
-          size="sm"
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-[#B3FF4C] text-black font-semibold hover:bg-[#a3f03b] text-xs px-5 h-8"
-        >
-          {saving ? "Saving Rules to DB..." : `Save Rules for ${tableName}`}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDryRun}
+            disabled={testingDryRun || saving}
+            className="border-cyan-500/30 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 text-xs gap-1.5 h-8"
+          >
+            <FlaskConical className="size-3.5" />
+            {testingDryRun ? "Testing Draft..." : "Test Before Saving"}
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-[#B3FF4C] text-black font-semibold hover:bg-[#a3f03b] text-xs px-5 h-8"
+          >
+            {saving ? "Saving Rules to DB..." : `Save Rules for ${tableName}`}
+          </Button>
+        </div>
       </div>
     </div>
   )

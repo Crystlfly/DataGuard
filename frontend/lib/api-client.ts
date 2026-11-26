@@ -16,6 +16,8 @@ import type {
   DatabaseSchemaResponse,
   DatabaseStatusResponse,
   DatabaseTestResponse,
+  DryRunResponse,
+  InlineCellEditResponse,
   IssueDetail,
   LineageEdge,
   LoginResponse,
@@ -23,9 +25,12 @@ import type {
   ProfileUpdatePayload,
   ProfileUpdateRequest,
   RuleCatalogRow,
+  RunDiffResponse,
   RunSummary,
   SchedulerConfig,
+  SmartRuleInferenceResponse,
   SlaResult,
+  TableXrayResponse,
   UpdateUserPayload,
 } from "@/lib/types"
 import { API_TOKEN_STORAGE_KEY, USER_NAME_STORAGE_KEY, USER_ROLE_STORAGE_KEY } from "@/lib/constants"
@@ -262,6 +267,41 @@ export const api = {
     requestJson<{ status: string; run_id: number; completed_at: string }>("/api/v1/scheduler/run-now", {
       method: "POST",
     }),
+  dryRunTableRules: (tableName: string, payload: Record<string, any>) =>
+    requestJson<DryRunResponse>(`/api/v1/rules/table/${tableName}/dry-run`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  inferSmartRules: (tableName?: string) =>
+    requestJson<SmartRuleInferenceResponse>("/api/v1/rules/infer", {
+      method: "POST",
+      body: JSON.stringify(tableName ? { table_name: tableName } : {}),
+    }),
+  tableXray: (tableName: string, opts?: { runId?: number; defectsOnly?: boolean; limit?: number }) => {
+    const params = new URLSearchParams()
+    if (opts?.runId !== undefined) params.set("run_id", String(opts.runId))
+    if (opts?.defectsOnly) params.set("defects_only", "true")
+    if (opts?.limit) params.set("limit", String(opts.limit))
+    const q = params.toString() ? `?${params.toString()}` : ""
+    return requestJson<TableXrayResponse>(`/api/v1/remediation/table-xray/${tableName}${q}`)
+  },
+  editCellInline: (payload: {
+    table_name: string
+    primary_key: Record<string, any>
+    column_name: string
+    new_value: any
+  }) =>
+    requestJson<InlineCellEditResponse>("/api/v1/remediation/cell-edit", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  runDiff: (baseRunId?: number, targetRunId?: number) => {
+    const params = new URLSearchParams()
+    if (baseRunId !== undefined) params.set("base_run_id", String(baseRunId))
+    if (targetRunId !== undefined) params.set("target_run_id", String(targetRunId))
+    const q = params.toString() ? `?${params.toString()}` : ""
+    return requestJson<RunDiffResponse>(`/api/v1/runs/diff${q}`)
+  },
 }
 
 export const getLatestRun = api.latestRun

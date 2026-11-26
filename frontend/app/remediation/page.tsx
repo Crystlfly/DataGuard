@@ -19,6 +19,7 @@ import {
   Search,
   ShieldAlert,
   Sparkles,
+  Table2,
   Wrench,
 } from "lucide-react"
 
@@ -31,6 +32,7 @@ import { PageHeader } from "@/components/ui-custom/page-header"
 import { SeverityBadge } from "@/components/ui-custom/severity-badge"
 import { IssueStatusBadge } from "@/components/remediation/issue-status-badge"
 import { IssueDetailDrawer } from "@/components/remediation/issue-detail-drawer"
+import { TableXrayGrid } from "@/components/remediation/table-xray-grid"
 import { api } from "@/lib/api-client"
 import { formatDateTime } from "@/lib/formatters"
 import type { CleanableIssue, CleaningSuggestion } from "@/lib/types"
@@ -45,6 +47,7 @@ export default function RemediationPage() {
   const [issues, setIssues] = useState<CleanableIssue[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
+  const [viewMode, setViewMode] = useState<"checklist" | "xray">("checklist")
   const [activeTab, setActiveTab] = useState<"open" | "resolved" | "all">("open")
   const [actionMessage, setActionMessage] = useState("")
   const [actionError, setActionError] = useState("")
@@ -354,7 +357,40 @@ export default function RemediationPage() {
         </Card>
       ) : null}
 
-      {/* Checklist Header, Search & Tabs */}
+      {/* View Mode Switcher: Fix Checklist vs Live Spreadsheet X-Ray */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
+        <div className="inline-flex rounded-md border border-white/10 bg-[#141414] p-1">
+          <button
+            type="button"
+            onClick={() => setViewMode("checklist")}
+            className={`flex items-center gap-1.5 rounded px-3.5 py-1.5 text-xs font-medium transition cursor-pointer ${
+              viewMode === "checklist"
+                ? "bg-[#B3FF4C] text-black font-semibold shadow-sm"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            <ListChecks className="size-3.5" />
+            <span>Fix Checklist ({openIssues.length} Open)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("xray")}
+            className={`flex items-center gap-1.5 rounded px-3.5 py-1.5 text-xs font-medium transition cursor-pointer ${
+              viewMode === "xray"
+                ? "bg-[#B3FF4C] text-black font-semibold shadow-sm"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            <Table2 className="size-3.5" />
+            <span>Spreadsheet X-Ray (Inline Edit)</span>
+          </button>
+        </div>
+      </div>
+
+      {viewMode === "xray" ? (
+        <TableXrayGrid onDataFixed={loadData} />
+      ) : (
+      /* Checklist Header, Search & Tabs */
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as "open" | "resolved" | "all")}>
@@ -535,6 +571,7 @@ export default function RemediationPage() {
           </div>
         )}
       </div>
+      )}
 
       {/* Side drawer for raw row inspection & fix suggestion */}
       <IssueDetailDrawer

@@ -8,6 +8,7 @@ import { clearStoredApiToken } from "@/lib/api-client"
 
 const titles: Record<string, string> = {
   "/dashboard": "Executive Dashboard",
+  "/regressions": "Run-to-Run Regression Diff",
   "/remediation": "Data Remediation Center",
   "/rules": "Rules Catalog",
   "/admin": "Administration",

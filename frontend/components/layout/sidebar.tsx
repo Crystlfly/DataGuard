@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   Database,
+  GitCompareArrows,
   LayoutDashboard,
   SlidersHorizontal,
   Wrench,
@@ -49,6 +50,7 @@ export function Sidebar() {
       label: "Command Center",
       items: [
         { href: "/dashboard", label: "Executive Dashboard", icon: LayoutDashboard },
+        { href: "/regressions", label: "Run Regressions", icon: GitCompareArrows },
       ],
     },
     {

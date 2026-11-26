@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { AlertTriangle, CheckCircle2, Database, Gauge, ListChecks, SlidersHorizontal, Wrench } from "lucide-react"
+import { AlertTriangle, CheckCircle2, Database, Gauge, GitCompareArrows, ListChecks, SlidersHorizontal, Wrench } from "lucide-react"
 
 import { FailedChecksChart } from "@/components/charts/failed-checks-chart"
 import { QualityTrendChart } from "@/components/charts/quality-trend-chart"
@@ -123,6 +123,16 @@ export default function DashboardPage() {
               >
                 <SlidersHorizontal className="size-3.5" />
                 Quality Rules
+              </Button>
+            </Link>
+            <Link href="/regressions">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2.5 text-xs border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.08] hover:text-white"
+              >
+                <GitCompareArrows className="size-3.5" />
+                Run Diff
               </Button>
             </Link>
             <Button

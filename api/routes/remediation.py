@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from pydantic import BaseModel
 
 from api.identity import get_request_identity
 from api.security import require_api_token
@@ -23,6 +24,7 @@ from services.data_cleaning_service import (
     verify_cleaning_job,
     verify_individual_issue,
 )
+from services.table_xray_service import get_table_xray, update_cell_inline
 from utils.audit_logger import log_audit_event
 from utils.logger import get_logger
 
@@ -292,6 +294,52 @@ def verify_issue_endpoint(
 
     try:
         return verify_individual_issue(issue_id, updated_by=identity.get("username", "user"))
+    except Exception as exc:
+        raise _friendly_error(exc)
+
+
+class InlineCellEditPayload(BaseModel):
+    table_name: str
+    primary_key: dict[str, Any]
+    column_name: str
+    new_value: Any = None
+
+
+@router.get("/remediation/table-xray/{table_name}")
+def table_xray_endpoint(
+    table_name: str,
+    run_id: int | None = Query(None),
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+    defects_only: bool = Query(False),
+) -> dict[str, Any]:
+    """Return live table rows enriched with cell-level quality defect highlights."""
+    try:
+        return get_table_xray(
+            table_name=table_name,
+            run_id=run_id,
+            limit=limit,
+            offset=offset,
+            defects_only=defects_only,
+        )
+    except Exception as exc:
+        raise _friendly_error(exc)
+
+
+@router.post("/remediation/cell-edit")
+def inline_cell_edit_endpoint(
+    payload: InlineCellEditPayload,
+    identity: dict[str, str] = Depends(_identity),
+) -> dict[str, Any]:
+    """Update a single cell inline in PostgreSQL and re-verify active quality rules."""
+    try:
+        return update_cell_inline(
+            table_name=payload.table_name,
+            primary_key=payload.primary_key,
+            column_name=payload.column_name,
+            new_value=payload.new_value,
+            updated_by=identity.get("username", "user"),
+        )
     except Exception as exc:
         raise _friendly_error(exc)
 
