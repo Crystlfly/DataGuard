@@ -45,16 +45,13 @@ def test_rules_yaml_is_valid():
 
 
 def test_rules_yaml_contains_main_datasets():
-    """Check that rules.yaml contains expected dataset sections."""
+    """Check that rules.yaml contains global rules sections."""
     rules_path = PROJECT_ROOT / "config" / "rules.yaml"
 
     with open(rules_path, "r", encoding="utf-8") as file:
         rules = yaml.safe_load(file)
 
     expected_sections = [
-        "customers",
-        "orders",
-        "products",
         "global_rules",
         "quality_thresholds",
     ]

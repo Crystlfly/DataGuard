@@ -22,6 +22,53 @@ def load_rules_catalog(file_path: str | Path = DEFAULT_RULES_PATH) -> dict[str, 
     return load_rules(str(file_path))
 
 
+def save_rules_catalog(rules_dict: dict[str, Any], file_path: str | Path = DEFAULT_RULES_PATH) -> None:
+    """Safely save rules catalog to disk in clean YAML format."""
+
+    path = Path(file_path)
+    if path.exists():
+        backup_path = path.with_suffix(".yaml.bak")
+        try:
+            backup_path.write_bytes(path.read_bytes())
+        except Exception:
+            pass
+
+    with open(path, "w", encoding="utf-8") as file:
+        yaml.safe_dump(
+            rules_dict or {},
+            file,
+            sort_keys=False,
+            allow_unicode=False,
+            default_flow_style=False,
+        )
+
+
+def update_table_rules(
+    table_name: str,
+    table_config: dict[str, Any],
+    file_path: str | Path = DEFAULT_RULES_PATH,
+) -> dict[str, Any]:
+    """Update or add rules for a specific table in config/rules.yaml."""
+
+    rules = load_rules_catalog(file_path)
+    rules[table_name] = table_config
+    save_rules_catalog(rules, file_path)
+    return rules
+
+
+def delete_table_rules(
+    table_name: str,
+    file_path: str | Path = DEFAULT_RULES_PATH,
+) -> dict[str, Any]:
+    """Remove a table's rules section from config/rules.yaml."""
+
+    rules = load_rules_catalog(file_path)
+    if table_name in rules:
+        del rules[table_name]
+        save_rules_catalog(rules, file_path)
+    return rules
+
+
 def flatten_rules_for_display(rules: dict[str, Any]) -> list[dict[str, Any]]:
     """Flatten nested YAML rules into dashboard-friendly catalog rows."""
 

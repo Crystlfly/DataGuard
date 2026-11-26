@@ -137,7 +137,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex items-center gap-2 text-zinc-500 text-xs">
-                  <span className="inline-block size-2 rounded-full bg-[#B3FF4C] animate-pulse" />
+                  <span className="inline-block size-2 rounded-full bg-[#B3FF4C]" />
                   <span className="text-zinc-400 font-medium">Live</span>
                 </div>
               </div>

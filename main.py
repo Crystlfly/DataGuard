@@ -71,8 +71,29 @@ def main():
     if not run_preflight_checks():
         return
 
-    rules = load_rules("config/rules.yaml")
-    logger.info("Loaded data quality rules from config/rules.yaml.")
+    from data_sources.postgres_connector import get_source_db_config
+    from services.rules_service import get_rules_for_database
+
+    source_db_name = get_source_db_config().database or "my_store_db"
+    rules = get_rules_for_database(source_db_name)
+    ignored_sections = {
+        "global_rules",
+        "cross_table_validations",
+        "quality_thresholds",
+    }
+    has_db_rules = any(k not in ignored_sections for k in rules.keys())
+
+    if has_db_rules:
+        logger.info("Loaded data quality rules from dataguard_metadata database for '%s'.", source_db_name)
+    else:
+        logger.info("No database rules found in metadata. Falling back to config/rules.yaml if present.")
+        try:
+            yaml_rules = load_rules("config/rules.yaml")
+            if any(k not in ignored_sections for k in yaml_rules.keys()):
+                rules = yaml_rules
+        except Exception:
+            pass
+
     global_rules = rules.get("global_rules", {})
 
     source = get_source_functions()

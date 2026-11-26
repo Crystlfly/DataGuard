@@ -341,3 +341,42 @@ export type DatabaseStatusResponse = {
   is_separate_source: boolean
   message?: string | null
 }
+
+export type ColumnSummary = {
+  name: string
+  data_type: string
+  nullable: boolean
+  is_primary_key: boolean
+}
+
+export type ForeignKeySummary = {
+  constrained_columns: string[]
+  referred_table: string
+  referred_columns: string[]
+}
+
+export type TableSchema = {
+  name: string
+  row_count?: number | null
+  columns_count?: number | null
+  is_internal?: boolean
+  columns: ColumnSummary[]
+  primary_key: string[]
+  foreign_keys: ForeignKeySummary[]
+}
+
+export type DatabaseSchemaResponse = {
+  database: string
+  source_type: string
+  tables: TableSchema[]
+}
+
+export type TableRuleConfig = {
+  required_columns?: string[]
+  unique_columns?: string[]
+  not_null_columns?: string[]
+  format_checks?: Record<string, string>
+  range_checks?: Record<string, { min?: number; max?: number; min_length?: number; max_length?: number }>
+  categorical_checks?: Record<string, { allowed_values: string[] }>
+  referential_integrity?: Record<string, { foreign_table: string; foreign_column: string }>
+}

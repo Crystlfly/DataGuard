@@ -13,6 +13,7 @@ import type {
   CleaningSuggestion,
   CreateUserPayload,
   DatabaseConnectionPayload,
+  DatabaseSchemaResponse,
   DatabaseStatusResponse,
   DatabaseTestResponse,
   IssueDetail,
@@ -224,6 +225,22 @@ export const api = {
       method: "DELETE",
     }),
   databaseStatus: () => requestJson<DatabaseStatusResponse>("/api/v1/database/status"),
+  databaseSchema: () => requestJson<DatabaseSchemaResponse>("/api/v1/database/schema"),
+  rawRules: () => requestJson<Record<string, any>>("/api/v1/rules/raw"),
+  saveRules: (payload: Record<string, any>) =>
+    requestJson<{ success: boolean; message: string }>("/api/v1/rules/save", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  saveTableRules: (tableName: string, payload: Record<string, any>) =>
+    requestJson<{ success: boolean; table: string; rules: any }>(`/api/v1/rules/table/${tableName}`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  deleteTableRules: (tableName: string) =>
+    requestJson<{ success: boolean; message: string }>(`/api/v1/rules/table/${tableName}`, {
+      method: "DELETE",
+    }),
   testDatabaseConnection: (payload: DatabaseConnectionPayload) =>
     requestJson<DatabaseTestResponse>("/api/v1/database/test", {
       method: "POST",

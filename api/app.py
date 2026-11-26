@@ -20,7 +20,13 @@ from api.routes.users import router as users_router
 from config.settings import PROJECT_ROOT, get_env
 from data_sources.postgres_connector import create_monitor_engine
 from dashboard.actions import run_checks_subprocess
-from rules.rules_catalog import flatten_rules_for_display, load_rules_catalog
+from services.rules_service import (
+    delete_table_rules_from_db,
+    get_flat_rules_for_database,
+    get_rules_for_database,
+    save_all_rules_in_db,
+    save_table_rules_in_db,
+)
 from services.data_cleaning_policy import normalize_role
 from utils.audit_logger import log_audit_event
 from utils.logger import get_logger
@@ -671,18 +677,89 @@ def get_profiling_results(
     )
 
 
+def _active_database() -> str:
+    """Return active source database name from environment or config."""
+    from data_sources.postgres_connector import get_source_db_config
+    try:
+        return get_source_db_config().database or "my_store_db"
+    except Exception:
+        return "my_store_db"
+
+
 @api_v1.get("/rules")
 def get_rules_catalog() -> list[dict[str, Any]]:
-    """Return active YAML rules flattened for UI display."""
+    """Return active database rules flattened for UI display from PostgreSQL."""
 
     try:
-        rules = load_rules_catalog()
-        return jsonable_encoder(flatten_rules_for_display(rules))
+        db_name = _active_database()
+        return get_flat_rules_for_database(db_name)
     except Exception:
         logger.exception("Rules catalog API request failed.")
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Rules catalog is unavailable. Check config/rules.yaml.",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to load rules from metadata database.",
+        )
+
+
+@api_v1.get("/rules/raw")
+def get_raw_rules() -> dict[str, Any]:
+    """Return raw structured rules for active database from PostgreSQL."""
+    try:
+        db_name = _active_database()
+        return get_rules_for_database(db_name)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unable to read database rules: {exc}",
+        )
+
+
+@api_v1.post("/rules/save")
+def save_rules(payload: dict[str, Any], request: Request) -> dict[str, Any]:
+    """Save updated rules dictionary into PostgreSQL dataguard_metadata."""
+    try:
+        db_name = _active_database()
+        identity = get_request_identity(request)
+        username = identity.get("username") or "admin"
+        save_all_rules_in_db(db_name, payload, username=username)
+        return {"success": True, "database": db_name, "message": "Rules updated successfully in database."}
+    except Exception as exc:
+        logger.exception("Failed to save rules in database: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to save rules in database: {exc}",
+        )
+
+
+@api_v1.post("/rules/table/{table_name}")
+def save_table_rules(table_name: str, payload: dict[str, Any], request: Request) -> dict[str, Any]:
+    """Save or update rules for a specific table in PostgreSQL."""
+    try:
+        db_name = _active_database()
+        identity = get_request_identity(request)
+        username = identity.get("username") or "admin"
+        save_table_rules_in_db(db_name, table_name, payload, username=username)
+        return {"success": True, "database": db_name, "table": table_name}
+    except Exception as exc:
+        logger.exception("Failed to update rules for table %s in DB: %s", table_name, exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update rules for table {table_name}: {exc}",
+        )
+
+
+@api_v1.delete("/rules/table/{table_name}")
+def delete_table_rules_endpoint(table_name: str, request: Request) -> dict[str, Any]:
+    """Delete all rules for a specific table from PostgreSQL."""
+    try:
+        db_name = _active_database()
+        delete_table_rules_from_db(db_name, table_name)
+        return {"success": True, "message": f"Rules for table {table_name} deleted from database."}
+    except Exception as exc:
+        logger.exception("Failed to delete rules for table %s: %s", table_name, exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete rules for table {table_name}: {exc}",
         )
 
 
@@ -717,6 +794,19 @@ def get_audit_logs(
 @api_v1.post("/checks/run")
 def run_checks_now(request: Request) -> dict[str, Any]:
     """Run the data quality pipeline from the API."""
+
+    db_name = _active_database()
+    rules = get_rules_for_database(db_name)
+    ignored_sections = {"global_rules", "cross_table_validations", "quality_thresholds"}
+    dataset_rules = {
+        k: v for k, v in rules.items()
+        if k not in ignored_sections and isinstance(v, dict) and any(v.values())
+    }
+    if not dataset_rules:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"No data quality rules have been configured for database '{db_name}'. Please create rules in the Rules Studio before running checks.",
+        )
 
     try:
         result = run_checks_subprocess(PROJECT_ROOT)

@@ -1,0 +1,165 @@
+# Data Quality Rules Configuration
+# Project: DataGuard Framework
+# Description: Quality rules for my_store_db
+
+users:
+  required_columns:
+    - id
+    - name
+    - email
+    - role
+    - created_at
+
+  unique_columns:
+    - id
+    - email
+
+  not_null_columns:
+    - id
+    - name
+    - email
+
+  format_checks:
+    email: email
+    name: alpha_with_spaces
+
+  range_checks:
+    name:
+      min_length: 2
+      max_length: 100
+
+orders:
+  required_columns:
+    - id
+    - user_id
+    - amount
+    - status
+    - order_date
+
+  unique_columns:
+    - id
+
+  not_null_columns:
+    - id
+    - user_id
+    - amount
+    - status
+    - order_date
+
+  range_checks:
+    amount:
+      min: 0
+      max: 1000000
+
+  categorical_checks:
+    status:
+      allowed_values:
+        - pending
+        - processing
+        - shipped
+        - delivered
+        - cancelled
+
+  referential_integrity:
+    user_id:
+      foreign_table: users
+      foreign_column: id
+
+products:
+  required_columns:
+    - id
+    - title
+    - category
+    - price
+    - in_stock
+
+  unique_columns:
+    - id
+
+  not_null_columns:
+    - id
+    - title
+    - price
+    - in_stock
+
+  range_checks:
+    price:
+      min: 0
+      max: 100000
+    in_stock:
+      min: 0
+      max: 10000
+    title:
+      min_length: 2
+      max_length: 200
+
+  categorical_checks:
+    category:
+      allowed_values:
+        - Electronics
+        - Accessories
+        - Audio
+        - Office
+        - Furniture
+        - Lighting
+
+# Global rules applied to all tables
+global_rules:
+  row_count:
+    min_rows: 1
+
+  completeness_threshold: 0.95
+
+  duplicate_tolerance: 0.01
+
+  data_drift_detection:
+    enabled: true
+    baseline_runs: 3
+    mean_change_threshold_percent: 25
+    std_change_threshold_percent: 30
+    psi_threshold: 0.2
+    statistical_tests:
+      - chi_square
+      - kolmogorov_smirnov
+
+  schema_drift_detection:
+    enabled: true
+    severity: HIGH
+
+  volume_anomaly_detection:
+    enabled: true
+    baseline_runs: 5
+    change_threshold_percent: 40
+    severity: HIGH
+
+  anomaly_detection:
+    enabled: true
+    z_score_threshold: 3
+    methods:
+      - isolation_forest
+      - z_score
+
+# Cross-table validation rules
+cross_table_validations:
+  - name: user_order_relationship
+    description: "Every order must have a valid user"
+    validation:
+      source_table: orders
+      source_column: user_id
+      target_table: users
+      target_column: id
+      type: foreign_key
+
+  - name: orphaned_orders
+    description: "Check for orders without corresponding users"
+    validation:
+      type: orphan_check
+      child_table: orders
+      parent_table: users
+      join_column: user_id
+
+# Quality score thresholds
+quality_thresholds:
+  critical: 95
+  warning: 85
+  acceptable: 75

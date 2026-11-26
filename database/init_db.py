@@ -435,6 +435,25 @@ CREATE_TABLE_STATEMENTS = [
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS data_quality_rules (
+        id SERIAL PRIMARY KEY,
+        database_name VARCHAR(100) NOT NULL,
+        table_name VARCHAR(100) NOT NULL,
+        rule_type VARCHAR(100) NOT NULL,
+        column_name VARCHAR(100) DEFAULT '',
+        rule_config JSONB NOT NULL DEFAULT '{}'::jsonb,
+        severity VARCHAR(20) DEFAULT 'MEDIUM',
+        is_enabled BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_by VARCHAR(100) DEFAULT 'admin'
+    )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS idx_data_quality_rules_db_table 
+    ON data_quality_rules (database_name, table_name)
+    """,
 ]
 
 

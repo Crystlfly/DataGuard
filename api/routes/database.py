@@ -67,6 +67,43 @@ class TableSummary(BaseModel):
     is_internal: bool = False
 
 
+class ColumnSummary(BaseModel):
+    """Column metadata for interactive rule creation."""
+
+    name: str
+    data_type: str
+    nullable: bool = True
+    is_primary_key: bool = False
+
+
+class ForeignKeySummary(BaseModel):
+    """Foreign key metadata for referential integrity rules."""
+
+    constrained_columns: list[str] = []
+    referred_table: str
+    referred_columns: list[str] = []
+
+
+class TableSchema(BaseModel):
+    """Detailed table schema with columns and keys for rule building."""
+
+    name: str
+    row_count: int | None = None
+    columns_count: int | None = None
+    is_internal: bool = False
+    columns: list[ColumnSummary] = []
+    primary_key: list[str] = []
+    foreign_keys: list[ForeignKeySummary] = []
+
+
+class DatabaseSchemaResponse(BaseModel):
+    """Full schema representation of the active database for the UI."""
+
+    database: str
+    source_type: str
+    tables: list[TableSchema] = []
+
+
 class DatabaseTestResponse(BaseModel):
     """Response returned after attempting a test connection."""
 
@@ -280,6 +317,85 @@ def get_database_status() -> DatabaseStatusResponse:
             is_separate_source=is_separate,
             message=f"Connection check failed: {exc}",
         )
+
+
+@router.get("/schema", response_model=DatabaseSchemaResponse)
+def get_database_schema() -> DatabaseSchemaResponse:
+    """Return detailed schema (tables, columns, types, keys) for active database."""
+    source_type = get_source_type()
+    config = get_source_db_config()
+    db_url = URL.create(
+        drivername=config.drivername,
+        username=config.username,
+        password=config.password,
+        host=config.host,
+        port=config.port,
+        database=config.database,
+    )
+    engine = create_engine(db_url, connect_args={"connect_timeout": 5})
+    try:
+        inspector = inspect(engine)
+        raw_tables = inspector.get_table_names(schema="public")
+
+        # Gather row counts safely
+        row_count_map: dict[str, int] = {}
+        with engine.connect() as conn:
+            for t_name in raw_tables:
+                try:
+                    count = conn.execute(text(f'SELECT count(*) FROM "{t_name}"')).scalar()
+                    row_count_map[t_name] = int(count or 0)
+                except Exception:
+                    pass
+
+        schemas: list[TableSchema] = []
+        for t_name in raw_tables:
+            is_int = any(t_name.startswith(p) for p in INTERNAL_PREFIXES)
+            pk_info = inspector.get_pk_constraint(t_name) or {}
+            pk_cols = pk_info.get("constrained_columns", [])
+            fk_info = inspector.get_foreign_keys(t_name) or []
+            fks = [
+                ForeignKeySummary(
+                    constrained_columns=fk.get("constrained_columns", []),
+                    referred_table=fk.get("referred_table", ""),
+                    referred_columns=fk.get("referred_columns", []),
+                )
+                for fk in fk_info
+            ]
+
+            cols: list[ColumnSummary] = []
+            try:
+                for c in inspector.get_columns(t_name):
+                    cols.append(
+                        ColumnSummary(
+                            name=c["name"],
+                            data_type=str(c.get("type", "UNKNOWN")),
+                            nullable=bool(c.get("nullable", True)),
+                            is_primary_key=c["name"] in pk_cols,
+                        )
+                    )
+            except Exception:
+                pass
+
+            schemas.append(
+                TableSchema(
+                    name=t_name,
+                    row_count=row_count_map.get(t_name),
+                    columns_count=len(cols),
+                    is_internal=is_int,
+                    columns=cols,
+                    primary_key=pk_cols,
+                    foreign_keys=fks,
+                )
+            )
+
+        schemas.sort(key=lambda t: (t.is_internal, t.name))
+        return DatabaseSchemaResponse(
+            database=config.database,
+            source_type=source_type,
+            tables=schemas,
+        )
+    finally:
+        engine.dispose()
 
 
 @router.post("/test", response_model=DatabaseTestResponse)

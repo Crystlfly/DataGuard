@@ -296,15 +296,27 @@ def _validate_source_tables_in_rules(
     rules: dict[str, Any],
     source_tables: list[str] | None,
 ) -> ValidationResult:
-    """Validate datasets referenced by rules.yaml exist in the source DB."""
+    """Validate datasets referenced by rules exist in the source DB."""
+
+    try:
+        from data_sources.postgres_connector import get_source_db_config
+        from services.rules_service import get_rules_for_database
+
+        active_db = get_source_db_config().database or "my_store_db"
+        db_rules = get_rules_for_database(active_db)
+        ignored = {"global_rules", "cross_table_validations", "quality_thresholds"}
+        if any(k not in ignored for k in db_rules.keys()):
+            rules = db_rules
+    except Exception:
+        pass
 
     dataset_names = _dataset_names_from_rules(rules)
 
     if not dataset_names:
-        return _warning(
+        return _fail(
             "source tables referenced in rules",
-            "No dataset rule sections were found in config/rules.yaml.",
-            "Add dataset sections such as customers, orders, or products.",
+            "No data quality rules have been configured for this database.",
+            "Create rules in Rules Studio before running checks.",
         )
 
     if source_tables is None:
