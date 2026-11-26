@@ -12,9 +12,7 @@ import {
   GitBranch,
   LayoutDashboard,
   ListChecks,
-  ScrollText,
   SearchCheck,
-  Send,
   Settings,
   SlidersHorizontal,
   Wrench,
@@ -62,13 +60,6 @@ const groups = [
       { href: "/rules", label: "Rules Studio", icon: SlidersHorizontal },
       { href: "/profiling", label: "Data Profiling", icon: Activity },
       { href: "/schema-drift", label: "Schema Drift", icon: Columns3 },
-    ],
-  },
-  {
-    label: "System & Setup",
-    items: [
-      { href: "/admin/notifications", label: "Notification Center", icon: Send },
-      { href: "/admin/audit-logs", label: "Audit Logs", icon: ScrollText },
     ],
   },
 ]

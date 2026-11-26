@@ -1,41 +1,5 @@
-"use client"
-
-import { Mail, MessageSquare, Send } from "lucide-react"
-
-import { AppShell } from "@/components/app-shell"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { PageHeader } from "@/components/ui-custom/page-header"
-import { StatusBadge } from "@/components/ui-custom/status-badge"
-
-const channels = [
-  { name: "Mailtrap Email", icon: Mail, status: "Configured in backend .env" },
-  { name: "Slack Webhook", icon: MessageSquare, status: "Configured in backend .env" },
-  { name: "Microsoft Teams", icon: Send, status: "Configured in backend .env" },
-]
+import { redirect } from "next/navigation"
 
 export default function NotificationsPage() {
-  return (
-    <AppShell>
-      <PageHeader eyebrow="Administration" title="Notification Center" subtitle="Notification channels, delivery readiness, and test action placeholders." />
-      <div className="grid gap-4 md:grid-cols-3">
-        {channels.map((channel) => {
-          const Icon = channel.icon
-          return (
-            <Card className="rounded-md border border-white/[0.08] bg-[#141414]" key={channel.name}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Icon className="size-4" /> {channel.name}</CardTitle>
-                <CardDescription className="text-zinc-400">{channel.status}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex items-center justify-between">
-                <StatusBadge status="INFO" />
-                <Button variant="outline" size="sm" className="h-7 text-xs" disabled>Test</Button>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-    </AppShell>
-  )
+  redirect("/dashboard")
 }
-
